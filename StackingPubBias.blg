@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2016)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: StackingPubBias.aux
+The style file: biom.bst
+Database file #1: publication.bias.bib
+Warning--I didn't find a database entry for "copas1997what"
+Warning--empty journal in light1984funnel
+Warning--empty journal in maier2020robma
+You've used 27 entries,
+            2146 wiz_defined-function locations,
+            687 strings with 8756 characters,
+and the built_in function-call counts, 12184 in all, are:
+= -- 1145
+> -- 662
+< -- 16
++ -- 224
+- -- 210
+* -- 1158
+:= -- 2136
+add.period$ -- 79
+call.type$ -- 27
+change.case$ -- 204
+chr.to.int$ -- 27
+cite$ -- 29
+duplicate$ -- 410
+empty$ -- 734
+format.name$ -- 261
+if$ -- 2267
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 28
+newline$ -- 136
+num.names$ -- 108
+pop$ -- 160
+preamble$ -- 1
+purify$ -- 205
+quote$ -- 0
+skip$ -- 291
+stack$ -- 0
+substring$ -- 850
+swap$ -- 185
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 160
+warning$ -- 2
+while$ -- 123
+width$ -- 0
+write$ -- 344
+(There were 3 warnings)

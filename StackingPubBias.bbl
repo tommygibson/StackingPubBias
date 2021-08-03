@@ -1,0 +1,175 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Bai, Lin, Boland, and Chen}{Bai
+  et~al.}{2020}]{bai2020}
+Bai, R., Lin, L., Boland, M.~R., and Chen, Y. (2020).
+\newblock A robust bayesian copas selection model for quantifying and
+  correcting publication bias.
+\newblock {\em arXiv preprint arXiv:2005.02930} .
+
+\bibitem[\protect\citeauthoryear{Begg and Mazumdar}{Begg and
+  Mazumdar}{1994}]{begg1994test}
+Begg, C.~B. and Mazumdar, M. (1994).
+\newblock Operating characteristics of a rank correlation test for publication
+  bias.
+\newblock {\em Biometrics} pages 1088--1101.
+
+\bibitem[\protect\citeauthoryear{Clyde and Iversen}{Clyde and
+  Iversen}{2013}]{clyde2013bma}
+Clyde, M. and Iversen, E.~S. (2013).
+\newblock Bayesian model averaging in the m-open framework.
+\newblock {\em Bayesian theory and applications} {\bf 14,} 483--498.
+
+\bibitem[\protect\citeauthoryear{Copas}{Copas}{1999}]{copas1999what}
+Copas, J. (1999).
+\newblock What works?: selectivity models and meta-analysis.
+\newblock {\em Journal of the Royal Statistical Society: Series A (Statistics
+  in Society)} {\bf 162,} 95--109.
+
+\bibitem[\protect\citeauthoryear{Copas and Shi}{Copas and
+  Shi}{2000}]{copas2000funnel}
+Copas, J. and Shi, J.~Q. (2000).
+\newblock Meta-analysis, funnel plots and sensitivity analysis.
+\newblock {\em Biostatistics} {\bf 1,} 247--262.
+
+\bibitem[\protect\citeauthoryear{Copas and Shi}{Copas and
+  Shi}{2001}]{copas2001sensitivity}
+Copas, J. and Shi, J.~Q. (2001).
+\newblock A sensitivity analysis for publication bias in systematic reviews.
+\newblock {\em Statistical methods in medical research} {\bf 10,} 251--265.
+
+\bibitem[\protect\citeauthoryear{Duval and Tweedie}{Duval and
+  Tweedie}{2000}]{duval2000biom}
+Duval, S. and Tweedie, R. (2000).
+\newblock Trim and fill: a simple funnel-plot--based method of testing and
+  adjusting for publication bias in meta-analysis.
+\newblock {\em Biometrics} {\bf 56,} 455--463.
+
+\bibitem[\protect\citeauthoryear{Egger, Smith, Schneider, and Minder}{Egger
+  et~al.}{1997}]{egger1997test}
+Egger, M., Smith, G.~D., Schneider, M., and Minder, C. (1997).
+\newblock Bias in meta-analysis detected by a simple, graphical test.
+\newblock {\em Bmj} {\bf 315,} 629--634.
+
+\bibitem[\protect\citeauthoryear{Givens, Smith, and Tweedie}{Givens
+  et~al.}{1997}]{givens1997}
+Givens, G.~H., Smith, D., and Tweedie, R. (1997).
+\newblock Publication bias in meta-analysis: a bayesian data-augmentation
+  approach to account for issues exemplified in the passive smoking debate.
+\newblock {\em Statistical Science} {\bf 12,} 221--250.
+
+\bibitem[\protect\citeauthoryear{Guan and Vandekerckhove}{Guan and
+  Vandekerckhove}{2016}]{guan2016}
+Guan, M. and Vandekerckhove, J. (2016).
+\newblock A bayesian approach to mitigation of publication bias.
+\newblock {\em Psychonomic bulletin \& review} {\bf 23,} 74--86.
+
+\bibitem[\protect\citeauthoryear{Hedges}{Hedges}{1984}]{hedges1984selection}
+Hedges, L.~V. (1984).
+\newblock Estimation of effect size under nonrandom sampling: The effects of
+  censoring studies yielding statistically insignificant mean differences.
+\newblock {\em Journal of Educational Statistics} {\bf 9,} 61--85.
+
+\bibitem[\protect\citeauthoryear{Hedges}{Hedges}{1992}]{hedges1992selection}
+Hedges, L.~V. (1992).
+\newblock Modeling publication selection effects in meta-analysis.
+\newblock {\em Statistical Science} {\bf 7,} 246--255.
+
+\bibitem[\protect\citeauthoryear{Jin, Zhou, and He}{Jin
+  et~al.}{2015}]{jin2015methods}
+Jin, Z.-C., Zhou, X.-H., and He, J. (2015).
+\newblock Statistical methods for dealing with publication bias in
+  meta-analysis.
+\newblock {\em Statistics in medicine} {\bf 34,} 343--360.
+
+\bibitem[\protect\citeauthoryear{Light and Pillemer}{Light and
+  Pillemer}{1984}]{light1984funnel}
+Light, R.~J. and Pillemer, D.~B. (1984).
+\newblock Summing up: the science of reviewing research.
+
+\bibitem[\protect\citeauthoryear{Lin and Chu}{Lin and Chu}{2018}]{lin2018test}
+Lin, L. and Chu, H. (2018).
+\newblock Quantifying publication bias in meta-analysis.
+\newblock {\em Biometrics} {\bf 74,} 785--794.
+
+\bibitem[\protect\citeauthoryear{Macaskill, Walter, and Irwig}{Macaskill
+  et~al.}{2001}]{macaskill2001test}
+Macaskill, P., Walter, S.~D., and Irwig, L. (2001).
+\newblock A comparison of methods to detect publication bias in meta-analysis.
+\newblock {\em Statistics in medicine} {\bf 20,} 641--654.
+
+\bibitem[\protect\citeauthoryear{Maier, Barto{\v{s}}, and Wagenmakers}{Maier
+  et~al.}{2020}]{maier2020robma}
+Maier, M., Barto{\v{s}}, F., and Wagenmakers, E.-J. (2020).
+\newblock Robust {Bayesian} meta-analysis: Addressing publication bias with
+  model-averaging.
+
+\bibitem[\protect\citeauthoryear{Mavridis, Sutton, Cipriani, and
+  Salanti}{Mavridis et~al.}{2013}]{mavridis2013copas}
+Mavridis, D., Sutton, A., Cipriani, A., and Salanti, G. (2013).
+\newblock A fully bayesian application of the copas selection model for
+  publication bias extended to network meta-analysis.
+\newblock {\em Statistics in medicine} {\bf 32,} 51--66.
+
+\bibitem[\protect\citeauthoryear{Peters, Sutton, Jones, Abrams, and
+  Rushton}{Peters et~al.}{2006}]{peters2006test}
+Peters, J.~L., Sutton, A.~J., Jones, D.~R., Abrams, K.~R., and Rushton, L.
+  (2006).
+\newblock Comparison of two methods to detect publication bias in
+  meta-analysis.
+\newblock {\em Jama} {\bf 295,} 676--680.
+
+\bibitem[\protect\citeauthoryear{Rothstein, Sutton, and Borenstein}{Rothstein
+  et~al.}{2006}]{rothstein2006}
+Rothstein, H.~R., Sutton, A.~J., and Borenstein, M. (2006).
+\newblock {\em Publication bias in meta-analysis: Prevention, assessment and
+  adjustments}.
+\newblock John Wiley \& Sons.
+
+\bibitem[\protect\citeauthoryear{R{\"u}cker, Schwarzer, and
+  Carpenter}{R{\"u}cker et~al.}{2008}]{rucker2008arcsine}
+R{\"u}cker, G., Schwarzer, G., and Carpenter, J. (2008).
+\newblock Arcsine test for publication bias in meta-analyses with binary
+  outcomes.
+\newblock {\em Statistics in Medicine} {\bf 27,} 746--763.
+
+\bibitem[\protect\citeauthoryear{Shi and Lin}{Shi and Lin}{2019}]{shi2019trim}
+Shi, L. and Lin, L. (2019).
+\newblock The trim-and-fill method for publication bias: practical guidelines
+  and recommendations based on a large database of meta-analyses.
+\newblock {\em Medicine} {\bf 98,}.
+
+\bibitem[\protect\citeauthoryear{Thompson and Sharp}{Thompson and
+  Sharp}{1999}]{thompson1999test}
+Thompson, S.~G. and Sharp, S.~J. (1999).
+\newblock Explaining heterogeneity in meta-analysis: a comparison of methods.
+\newblock {\em Statistics in medicine} {\bf 18,} 2693--2708.
+
+\bibitem[\protect\citeauthoryear{Vevea and Hedges}{Vevea and
+  Hedges}{1995}]{vevea1995pubbias}
+Vevea, J.~L. and Hedges, L.~V. (1995).
+\newblock A general linear model for estimating effect size in the presence of
+  publication bias.
+\newblock {\em Psychometrika} {\bf 60,} 419--435.
+
+\bibitem[\protect\citeauthoryear{Vevea and Woods}{Vevea and
+  Woods}{2005}]{vevea2005sensitivity}
+Vevea, J.~L. and Woods, C.~M. (2005).
+\newblock Publication bias in research synthesis: sensitivity analysis using a
+  priori weight functions.
+\newblock {\em Psychological methods} {\bf 10,} 428.
+
+\bibitem[\protect\citeauthoryear{Yao, Pir{\v{s}}, Vehtari, and Gelman}{Yao
+  et~al.}{2021}]{yao2021hierarchical}
+Yao, Y., Pir{\v{s}}, G., Vehtari, A., and Gelman, A. (2021).
+\newblock Bayesian hierarchical stacking.
+\newblock {\em arXiv preprint arXiv:2101.08954} .
+
+\bibitem[\protect\citeauthoryear{Yao, Vehtari, Simpson, and Gelman}{Yao
+  et~al.}{2018}]{yao2018stacking}
+Yao, Y., Vehtari, A., Simpson, D., and Gelman, A. (2018).
+\newblock Using stacking to average bayesian predictive distributions (with
+  discussion).
+\newblock {\em Bayesian Analysis} {\bf 13,} 917--1007.
+
+\end{thebibliography}

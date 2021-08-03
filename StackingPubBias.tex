@@ -1,0 +1,79 @@
+\documentclass[12pt]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage[letterpaper,bindingoffset=0.2in,%
+            left=1.2in, right=1.2in, top=1.2in, bottom=1.2in,%
+            footskip=.25in]{geometry}
+%\geometry{landscape}                		% Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    		% Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}				% Use pdf, png, jpg, or eps§ with pdflatex; use eps in DVI mode
+								% TeX will automatically convert eps --> pdf in pdflatex
+
+										
+\usepackage{amssymb,amsmath,amsthm,enumitem}
+\usepackage{setspace}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{endfloat}
+\usepackage{natbib}
+\usepackage{varioref}
+\usepackage{geometry}
+\usepackage{pdflscape}
+\usepackage{rotating}
+\usepackage{caption}
+
+\usepackage{makecell}
+\renewcommand\theadfont{}
+
+
+% \bibpunct{(}{)}{;}{a}{}{,}
+
+\usepackage{etoolbox}
+\newcommand{\zerodisplayskips}{%
+  \setlength{\abovedisplayskip}{4pt}%
+  \setlength{\belowdisplayskip}{4pt}%
+  \setlength{\abovedisplayshortskip}{4pt}%
+  \setlength{\belowdisplayshortskip}{4pt}}
+\appto{\normalsize}{\zerodisplayskips}
+\appto{\small}{\zerodisplayskips} 
+\appto{\footnotesize}{\zerodisplayskips}
+
+%SetFonts
+
+\numberwithin{equation}{section}
+
+\title{Mitigating Publication Bias Using Bayesian Stacking}
+\author{Thomas A. Gibson}
+%\date{}							% Activate to display a given date or no date
+
+\begin{document}
+\maketitle
+
+\doublespacing
+\nomarkersintext
+
+\section{Introduction} \label{sec:intro}
+
+Results from a meta-analysis may be skewed and unreliable in the presence of publication bias, where the publication or non-publication of a study depends on the statistical significance or magnitude of its results \citep{rothstein2006}. Statistical methods for publication bias have been designed for sensitivity analysis, testing for the presence/magnitude of publication bias, and calculating bias-corrected parameter estimates. Most methods are either based on the funnel plot or selection models.
+
+Methods based on the funnel plot \citep{light1984funnel} -- a scatterplot of effect sizes against their standard errors -- use the plot's asymmetry to test or correct for bias. The methods assume that publication bias operates primarily on smaller studies and that larger studies are much less affected. A popular non-parametric test for publication bias \citep{begg1994test} uses Kendall's tau to measure the rank correlation between standardized observed effect sizes and the effect sizes' standard errors. Egger's test \citep{egger1997test} fits a linear regression of observed standard normal deviates against the observed precision of estimates, with the null hypothesis being that the regression intercept is zero. Other regression methods \citep{macaskill2001test, rucker2008arcsine, thompson1999test, peters2006test} are similar and use regression weights or transformations to improve upon Egger's test in the presence of heterogeneity or for dichotomous outcomes \citep{jin2015methods}. \citet{lin2018test} develops a measure for the severity of publication bias based on the skewness of standardized deviates. The trim-and-fill method \citep{duval2000biom} estimates the number of missing studies and their effect sizes using funnel plot asymmetry and gives an adjusted pooled effect estimate. The authors recommend using it as a sensitivity analysis based on the potential number of missing studies, with general guidelines given in \citet{shi2019trim}. The trim-and-fill method is the only funnel plot-based method that offers an adjusted mean estimate, and it is not recommended if there is heterogeneity present \citep{jin2015methods}.
+
+A second class of methods is based on \textit{selection models}, first described in \citet{hedges1984selection}. Some models explicitly model the probability of publication for individual studies as a function of their p-values \citep{hedges1992selection, givens1997, vevea1995pubbias} or as a function of both the effect size and standard error \citep{copas1999what, copas2000funnel, copas2001sensitivity}. Earlier selection models were recommended for bias-corrected effect size estimates, and were later recommended only for sensitivity analyses because of identifiability issues in smaller meta-analyses \citep{vevea2005sensitivity, jin2015methods}. Sensitivity analyses use a grid representing varying levels of publication bias and estimate the mean effect under each assumed scenario. If results do not change much under sever publication bias they are considered robust, and if results do change under mild publication bias they are considered sensitive to publication bias. Bayesian implementations of the Copas selection model \citep{mavridis2013copas, bai2020} have again allowed for estimation of mean effect sizes.
+
+Recent approaches to mitigating publication bias have used Bayesian model averaging (BMA) to consider a set of potential selection functions. \citet{guan2016} considers four different selection functions, including a no-bias model, an extreme-bias model where results with p-values $p > \alpha$ are never published, a 1-step function where results with $p > \alpha$ are published with some probability $\pi < 1$, and a model inspired by \citet{givens1997} where the probability of publication decreases exponentially with $p$. The authors only implement the models in a fixed-effects framework. \citet{maier2020robma} considers a set of 12 models, using a $2 \times 2 \times 2$ factorial design with fixed/random effects, a true null/alternative hypothesis, and the presence/absence of publication bias. The authors consider two-step and three-step selection functions based on p-values when publication bias is assumed. 
+
+BMA effectively assumes that one of the considered models is the ``true" model, which we call the $\mathcal{M}-closed$ setting. BMA does not perform as well under the $\mathcal{M}-complete$ or $\mathcal{M}-open$ settings, where the true data generating mechanism is too complex to implement or to put into a probabilistic framework \citep{clyde2013bma}. Multiple issues arise for BMA in these settings, including a) the need to specify prior model probabilities, which makes little sense when we know the true model is not in our list, and b) the model weights from BMA will converge to the  1 for the model ``closest" to the true model in terms of Kullback-Leibler divergence, and 0 for all others. Bayesian stacking \citep{yao2018stacking, yao2021hierarchical} is a related method that outperforms BMA and solves the above issues by calculating optimal weights using expected log-predictive densities and leave-one-out cross validation. 
+
+We propose a method using Bayesian stacking to mitigate publication bias by incorporating multiple different selection models. \citet{copas2001sensitivity} recommends a sensitivity analysis over a grid of possible patterns of publication bias, each of which returns a bias-adjusted mean effect size estimate. A stacked-average estimate can be obtained through a weighted average of estimates with the weights coming from Bayesian stacking. Assumed patterns of publication bias that do not fit the data will be given little weight. We also combine multiple types of models, including an exponential decay model \citep{givens1997}, step functions \citep{hedges1992selection, vevea1995pubbias}, and the Copas selection model \citep{copas1997what}. 
+
+
+
+
+
+
+
+\bibliographystyle{biom}
+\bibliography{publication.bias}
+
+\end{document}  
+
+
+
