@@ -1,0 +1,35 @@
+data
+{
+  for(i in 1:S){
+    s2[i] <- pow(s[i], 2)
+    u[i] <- gamma0 + gamma1 / s[i]
+    c2[i] <- dnorm(u[i], 0, 1) / pnorm(u[i], 0, 1) * (u[i] + dnorm(u[i], 0, 1) / pnorm(u[i], 0, 1))
+    
+  }
+}
+
+model
+{
+  for(i in 1:S){
+    y[i] ~ dnorm(mean.y[i], prec.y[i])
+    z[i] ~ dnorm(gamma0 + gamma1 / s[i], 1) T(0,)
+    
+    mean.y[i] = theta + rho * sigma[i] * (z[i] - (gamma0 + gamma1 / s[i]))
+    prec.y[i] = 1 / var.y[i]
+    var.y[i] = tau2 + sigma2[i] * (1 - (rho ^ 2))
+    
+    
+    sigma2[i] = s2[i] / (1 - c2[i] * rho)
+    sigma[i] = sqrt(sigma2[i])
+    
+  }
+  
+  tau2 = pow(tau, 2)
+  rho ~ dunif(-.99, .99)
+  #rho = rho_t * 2 - 1
+  
+  tau ~ dt(0, 1, 1) T(0,)
+  # rho_t ~ dbeta(2, 2)
+  theta ~ dnorm(0, 0.01)
+  
+}
