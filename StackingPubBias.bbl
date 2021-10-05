@@ -14,6 +14,12 @@ Begg, C.~B. and Mazumdar, M. (1994).
   bias.
 \newblock {\em Biometrics} pages 1088--1101.
 
+\bibitem[\protect\citeauthoryear{Bernardo and Smith}{Bernardo and
+  Smith}{2009}]{bernardo2009}
+Bernardo, J.~M. and Smith, A.~F. (2009).
+\newblock {\em Bayesian theory}, volume 405.
+\newblock John Wiley \& Sons.
+
 \bibitem[\protect\citeauthoryear{Clyde and Iversen}{Clyde and
   Iversen}{2013}]{clyde2013bma}
 Clyde, M. and Iversen, E.~S. (2013).
@@ -50,6 +56,20 @@ Duval, S. and Tweedie, R. (2000).
 Egger, M., Smith, G.~D., Schneider, M., and Minder, C. (1997).
 \newblock Bias in meta-analysis detected by a simple, graphical test.
 \newblock {\em Bmj} {\bf 315,} 629--634.
+
+\bibitem[\protect\citeauthoryear{Gelman, Carlin, Stern, and Rubin}{Gelman
+  et~al.}{1995}]{gelman1995bda}
+Gelman, A., Carlin, J.~B., Stern, H.~S., and Rubin, D.~B. (1995).
+\newblock {\em Bayesian Data Analysis}.
+\newblock Chapman and Hall/CRC.
+
+\bibitem[\protect\citeauthoryear{Gelman, Lee, and Guo}{Gelman
+  et~al.}{2015}]{gelman2015stan}
+Gelman, A., Lee, D., and Guo, J. (2015).
+\newblock Stan: A probabilistic programming language for bayesian inference and
+  optimization.
+\newblock {\em Journal of Educational and Behavioral Statistics} {\bf 40,}
+  530--543.
 
 \bibitem[\protect\citeauthoryear{Givens, Smith, and Tweedie}{Givens
   et~al.}{1997}]{givens1997}
@@ -119,6 +139,14 @@ Peters, J.~L., Sutton, A.~J., Jones, D.~R., Abrams, K.~R., and Rushton, L.
   meta-analysis.
 \newblock {\em Jama} {\bf 295,} 676--680.
 
+\bibitem[\protect\citeauthoryear{Plummer et~al\mbox{.}}{Plummer
+  et~al.}{2003}]{plummer2003jags}
+Plummer, M. et~al. (2003).
+\newblock Jags: A program for analysis of bayesian graphical models using gibbs
+  sampling.
+\newblock In {\em Proceedings of the 3rd international workshop on distributed
+  statistical computing}, volume 124, pages 1--10. Vienna, Austria.
+
 \bibitem[\protect\citeauthoryear{Rothstein, Sutton, and Borenstein}{Rothstein
   et~al.}{2006}]{rothstein2006}
 Rothstein, H.~R., Sutton, A.~J., and Borenstein, M. (2006).
@@ -144,6 +172,13 @@ Shi, L. and Lin, L. (2019).
 Thompson, S.~G. and Sharp, S.~J. (1999).
 \newblock Explaining heterogeneity in meta-analysis: a comparison of methods.
 \newblock {\em Statistics in medicine} {\bf 18,} 2693--2708.
+
+\bibitem[\protect\citeauthoryear{Vehtari, Gelman, and Gabry}{Vehtari
+  et~al.}{2017}]{vehtari2017psis}
+Vehtari, A., Gelman, A., and Gabry, J. (2017).
+\newblock Practical bayesian model evaluation using leave-one-out
+  cross-validation and waic.
+\newblock {\em Statistics and computing} {\bf 27,} 1413--1432.
 
 \bibitem[\protect\citeauthoryear{Vevea and Hedges}{Vevea and
   Hedges}{1995}]{vevea1995pubbias}

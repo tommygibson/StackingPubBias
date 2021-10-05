@@ -56,19 +56,92 @@ Results from a meta-analysis may be skewed and unreliable in the presence of pub
 
 Methods based on the funnel plot \citep{light1984funnel} -- a scatterplot of effect sizes against their standard errors -- use the plot's asymmetry to test or correct for bias. The methods assume that publication bias operates primarily on smaller studies and that larger studies are much less affected. A popular non-parametric test for publication bias \citep{begg1994test} uses Kendall's tau to measure the rank correlation between standardized observed effect sizes and the effect sizes' standard errors. Egger's test \citep{egger1997test} fits a linear regression of observed standard normal deviates against the observed precision of estimates, with the null hypothesis being that the regression intercept is zero. Other regression methods \citep{macaskill2001test, rucker2008arcsine, thompson1999test, peters2006test} are similar and use regression weights or transformations to improve upon Egger's test in the presence of heterogeneity or for dichotomous outcomes \citep{jin2015methods}. \citet{lin2018test} develops a measure for the severity of publication bias based on the skewness of standardized deviates. The trim-and-fill method \citep{duval2000biom} estimates the number of missing studies and their effect sizes using funnel plot asymmetry and gives an adjusted pooled effect estimate. The authors recommend using it as a sensitivity analysis based on the potential number of missing studies, with general guidelines given in \citet{shi2019trim}. The trim-and-fill method is the only funnel plot-based method that offers an adjusted mean estimate, and it is not recommended if there is heterogeneity present \citep{jin2015methods}.
 
-A second class of methods is based on \textit{selection models}, first described in \citet{hedges1984selection}. Some models explicitly model the probability of publication for individual studies as a function of their p-values \citep{hedges1992selection, givens1997, vevea1995pubbias} or as a function of both the effect size and standard error \citep{copas1999what, copas2000funnel, copas2001sensitivity}. Earlier selection models were recommended for bias-corrected effect size estimates, and were later recommended only for sensitivity analyses because of identifiability issues in smaller meta-analyses \citep{vevea2005sensitivity, jin2015methods}. Sensitivity analyses use a grid representing varying levels of publication bias and estimate the mean effect under each assumed scenario. If results do not change much under sever publication bias they are considered robust, and if results do change under mild publication bias they are considered sensitive to publication bias. Bayesian implementations of the Copas selection model \citep{mavridis2013copas, bai2020} have again allowed for estimation of mean effect sizes.
+A second class of methods is based on \textit{selection models}, first described in \citet{hedges1984selection}. Some models explicitly model the probability of publication for individual studies as a function of their p-values \citep{hedges1992selection, givens1997, vevea1995pubbias} or as a function of both the effect size and standard error \citep{copas1999what, copas2000funnel, copas2001sensitivity}. Earlier selection models were recommended for bias-corrected effect size estimates, and were later recommended only for sensitivity analyses because of identifiability issues in smaller meta-analyses \citep{vevea2005sensitivity, jin2015methods}. Sensitivity analyses use a grid representing varying levels of publication bias and estimate the mean effect under each assumed scenario. If results do not change much under severe publication bias they are considered robust, and if results do change under mild publication bias they are considered sensitive to publication bias. Bayesian implementations of the Copas selection model \citep{mavridis2013copas, bai2020} have again allowed for estimation of mean effect sizes.
 
-Recent approaches to mitigating publication bias have used Bayesian model averaging (BMA) to consider a set of potential selection functions. \citet{guan2016} considers four different selection functions, including a no-bias model, an extreme-bias model where results with p-values $p > \alpha$ are never published, a 1-step function where results with $p > \alpha$ are published with some probability $\pi < 1$, and a model inspired by \citet{givens1997} where the probability of publication decreases exponentially with $p$. The authors only implement the models in a fixed-effects framework. \citet{maier2020robma} considers a set of 12 models, using a $2 \times 2 \times 2$ factorial design with fixed/random effects, a true null/alternative hypothesis, and the presence/absence of publication bias. The authors consider two-step and three-step selection functions based on p-values when publication bias is assumed. 
+Recent approaches to mitigating publication bias have used Bayesian model averaging (BMA) to consider a set of potential selection functions. \citet{guan2016} considers four different selection functions, including a no-bias model, an extreme-bias model where results with p-values $p > \alpha$ are never published, a 1-step function where results with $p > \alpha$ are published with some probability $\pi < 1$, and a model inspired by \citet{givens1997} where the probability of publication decreases exponentially with $p$. The authors only implement the models in a fixed-effects framework. \citet{maier2020robma} considers a set of 12 models, using a $2 \times 2 \times 2$ factorial design with fixed/random effects, a true null/alternative hypothesis, and the presence/absence of publication bias. The authors consider two-step and three-step selection functions based on p-values when publication bias is assumed, where the probability of publication changes at $p=0.05$ (two-step) or at both $p = 0.05$ and $p = 0.10$ (three-step).  
 
 BMA effectively assumes that one of the considered models is the ``true" model, which we call the $\mathcal{M}-closed$ setting. BMA does not perform as well under the $\mathcal{M}-complete$ or $\mathcal{M}-open$ settings, where the true data generating mechanism is too complex to implement or to put into a probabilistic framework \citep{clyde2013bma}. Multiple issues arise for BMA in these settings, including a) the need to specify prior model probabilities, which makes little sense when we know the true model is not in our list, and b) the model weights from BMA will converge to the  1 for the model ``closest" to the true model in terms of Kullback-Leibler divergence, and 0 for all others. Bayesian stacking \citep{yao2018stacking, yao2021hierarchical} is a related method that outperforms BMA and solves the above issues by calculating optimal weights using expected log-predictive densities and leave-one-out cross validation. 
 
-We propose a method using Bayesian stacking to mitigate publication bias by incorporating multiple different selection models. \citet{copas2001sensitivity} recommends a sensitivity analysis over a grid of possible patterns of publication bias, each of which returns a bias-adjusted mean effect size estimate. A stacked-average estimate can be obtained through a weighted average of estimates with the weights coming from Bayesian stacking. Assumed patterns of publication bias that do not fit the data will be given little weight. We also combine multiple types of models, including an exponential decay model \citep{givens1997}, step functions \citep{hedges1992selection, vevea1995pubbias}, and the Copas selection model \citep{copas1997what}. 
+We propose using Bayesian stacking to mitigate publication bias by incorporating multiple different selection models. \citet{copas2001sensitivity} recommends a sensitivity analysis over a grid of possible patterns of publication bias, each of which returns a bias-adjusted mean effect size estimate. A stacked estimate of the mean effect size can be obtained through a weighted average of estimates with the weights coming from Bayesian stacking. Assumed patterns of publication bias that do not fit the data will be given little weight. We propose stacking over multiple types of models, including an exponential decay model \citep{givens1997}, step functions \citep{hedges1992selection, vevea1995pubbias}, and Bayesian Copas selection models \citet{mavridis2013copas, bai2020}. 
 
+\section{Methods} \label{sec:methods}
 
+\subsection{Copas selection model} \label{sec:copas}
 
+Say we have $S$ studies in the meta-analysis, indexed by $i = 1, \dots, S$. Each study provides an estimated effect $y_i$, such as a log-odds ratio, and a standard deviation $s_i$ associated with the effect. We model observed effects as
+\begin{align}
+y_i &= \theta_i + \sigma_i \epsilon_i  \label{eq:yi}\\
+z_i &= \gamma_0 + \frac{\gamma_1}{s_i} + \delta_i \label{eq:zi}\\
+\theta_i & \sim \mbox{N}(\theta, \tau^2), \label{eq:thetai}
+\end{align}
+where $\theta_i$ is study $i$'s true effect and $\sigma_i^2$ is study $i$'s sampling variance. The latent factor $z_i$ models the publication process, where study $i$ is selected (published) only if $z_i > 0$. The parameter $\gamma_0$ controls the probability of publication for a study with infinite standard deviation, and $\gamma_1$ defines the relationship between the observed standard deviation $s_i$ and the probability of publication. Usually $\gamma_1$ is assumed to be positive, so that studies with smaller standard errors are more likely to be published. The random effects $(\epsilon_i, \delta_i)$ are modeled as bivariate normal
+\begin{align}
+\begin{pmatrix}
+\epsilon_i \\
+\delta_i
+\end{pmatrix}\sim N\left(\begin{pmatrix}
+0 \\
+0
+\end{pmatrix},\begin{pmatrix}
+1 & \rho \\
+\rho & 1
+\end{pmatrix}\right) \label{eq:epsilon}
+\end{align}
+where corr$(\epsilon_i, \delta_i) = \rho$ measures how the probability of selection changes with observed effect sizes. We generally expect $\rho$ to be positive, so that studies with larger effects are more likely to be published. \citet{copas2000funnel} rewrite model \eqref{eq:yi} - \eqref{eq:epsilon} as
+\begin{align}
+y_i &= \theta + (\tau^2 + \sigma_i^2)^{1/2} \epsilon_i^* \\
+z_i &= \gamma_0 + \frac{\gamma_1}{s_i} + \delta_i \\
+\begin{pmatrix}
+\epsilon_i^* \\
+\delta_i
+\end{pmatrix} & \sim \mbox{N}\left(\begin{pmatrix}
+0 \\
+0
+\end{pmatrix},\begin{pmatrix}
+1 & \tilde{\rho_i} \\
+\tilde{\rho_i} & 1
+\end{pmatrix}\right) \\
+\tilde{\rho_i} &= \frac{\sigma_i}{(\tau^2 + \sigma_i^2)^{1/2}} \rho,
+\end{align}
+which leads to a simple form for the log-likelihood 
+\begin{align}
+\begin{split}
+L(\theta, \tau^2, \rho, \gamma_0, \gamma_1) &= \sum_{i = 1} ^ S \log[p(y_i \vert z_i > 0, s_i)] \\
+& = \sum_{i = 1} ^ S \log \Bigg[ \frac{p(z_i > 0 \vert y_i, s_i) f(y_i)}{p(z_i > 0 \vert s_i)} \Bigg] \\
+& = \sum_{i = 1} ^ S -\frac{1}{2} \log(\tau^2 + \sigma_i^2) - \frac{(y_i - \theta)^2}{2(\tau^2 + \sigma_i^2)} - \log \Phi(u_i) + \log \Phi(v_i) \label{eq:loglik}
+\end{split}
+\end{align}
+where $\phi(\cdot)$ and $\Phi(\cdot)$ represent the standard normal probability density and cumulative density functions, respectively, $u_i = \gamma_0 + \frac{\gamma_1}{s_i}$, and 
+\begin{align}
+v_i &= \frac{u_i + \tilde{\rho}_i \frac{y_i - \theta}{\sqrt{\tau^2 + \sigma_i^2}}}{\sqrt{(1 - \tilde{\rho}_i^2)}}.
+\end{align}
+For a given pair $(\gamma_0, \gamma_1)$, one can obtain stable estimates $\hat{\theta}$, $\hat{\tau}^2$, $\hat{\rho}$. 
 
+Bayesian adaptations of the Copas model have been developed \citep{mavridis2013copas, bai2020}, which put prior distributions on all parameters including $\gamma_0$ and $\gamma_1$. One can also fit a Bayesian Copas model by only placing priors on $(\theta, \tau^2, \rho)$ and treating $(\gamma_0, \gamma_1)$ as data. 
 
+\subsection{Bayesian stacking} \label{sec:stacking}
 
+We use $\mathcal{M}-open$ to refer to the setting in which our list of candidate models does not include the true data generating mechanism \citep{bernardo2009}. Bayesian stacking \citep{yao2018stacking} is an alternative to BMA that has superior performance in the $\mathcal{M}$-open setting. If we have $K$ candidate models, the goal is to find the set of optimal weights $w \in \mathcal{S}_1^K$, $\mathcal{S}_1^K = \{w \in [0,1]^K \: : \: \sum_{k = 1}^K w_k = 1\}$, that maximizes a score $S$ comparing weighted predictive distributions  $p_k(\tilde{y} \vert y, M_k)$ to the true distribution $p_t(\tilde{y} \vert y)$. \citet{yao2018stacking} replace $p(\tilde{y} \vert y, M_k)$ with its corresponding leave-one-out (LOO) predictive distribution $\hat{p}_{k, -i}(y_i) = \int p(Y_i \vert \theta_k, M_k) p(\theta_k \vert y_{-i}, M_k) d\theta_k$, where $M_k$ is model $k, k = 1, \dots, K$, and $\theta_k$ are the parameters in model $k$. The authors recommend the logarithmic scoring rule, which reduces the stacking problem to solving for weights $w$ in 
+\begin{align}
+\underset{w \in \mathcal{S}_1^K}{\mbox{max}} \frac{1}{n} \sum_{i = 1}^n \log \sum_{k = 1}^K w_k p(y_i \vert y_{-i}, M_k)
+\end{align}
+via optimization. 
+Instead of refitting each model $n$ times to obtain LOO distributions ${p}_{k}(y_i \vert y_{-i} M_k)$, \citet{yao2018stacking} use Pareto smoothed importance sampling (PSIS) \citep{vehtari2017psis} to obtain approximations. 
+
+Implementation of Bayesian stacking can be done using the R package `loo'. 
+
+\subsection{Bayesian stacking of Copas selection models}
+
+We consider a grid of values for $(\gamma_0, \gamma_1)$ as in \citet{copas2001sensitivity}. If we use $K$ values for each of $\gamma_0$ and $\gamma_1$, we will have $K^2$ total models. To apply stacking to the $K^2$ models, we fit each model $k$ in either JAGS \citep{plummer2003jags} or Stan \citep{gelman2015stan}. In JAGS we follow \citet{mavridis2013copas} by first sampling $z_i$ from its marginal distribution $z_i \sim \mbox{N}(u_i, 1) I_{z_i > 0}$ which is truncated normal. We can then sample from the conditional distribution $y_i \vert z_i, \theta, \tau^2, \rho \sim \mbox{N} \big( \mbox{E}(y_i \vert z_i), \mbox{var}(y_i \vert z_i) \big)$, where $\mbox{E}(y_i \vert z_i) = \theta + \rho \sigma_i (z_i - u_i)$ and $\mbox{var}(y_i \vert z_i) = \tau^2 + \sigma_i^2(1 - \rho^2)$. 
+
+In Stan we use the log-likelihood function \eqref{eq:loglik} directly to define the target log density. In both models we use weakly informative prior distributions for $\theta$ and $\tau$
+\begin{align}
+\theta &\sim \mbox{N}(0, 100) \label{eq:theta} \\
+\tau &\sim \mbox{half-Cauchy}(A) \label{eq:tau}
+\end{align}
+where we set the scale parameter $A$ to be between 0.5 and 1 for meta-analyses of log-odds ratios. We use a $\mbox{Beta}(2, 2)$ prior for the transformed correlation parameter $\frac{\rho + 1}{2}$ \citep{gelman1995bda}.
+ 
+In order to use stacking with the `loo' package, we need to sample from the posterior log-likelihood \eqref{eq:loglik}. If we have studies $i = 1, \dots, S$ and $M$ iterations of Markov chain Monte Carlo (MCMC), we sample $\mbox{loglik}_i^{(m)}$ for each study $i$ and iteration $m = 1, \dots, M$.
 
 \bibliographystyle{biom}
 \bibliography{publication.bias}
