@@ -62,7 +62,7 @@ model {
 generated quantities {
   vector[S] log_lik;
   for(i in 1:S){
-    log_lik[i] = normal_lcdf(v[i] | 0, 1)-0.5 * log(tau2 + sigma2[i]) - 
+    log_lik[i] = normal_lcdf(v[i] | 0, 1) - 0.5 * log(tau2 + sigma2[i]) - 
       (y[i] - mu) ^ 2 / (2 * (tau2 + sigma2[i])) - 
       normal_lcdf(u[i] | 0, 1);
   }
