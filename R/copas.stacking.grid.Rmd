@@ -1,0 +1,184 @@
+---
+title: "Stacking Copas selection models over varying grids"
+output: pdf_document
+header-includes: \usepackage{setspace}\doublespacing
+---
+
+Here we explore the consistency of stacking of Copas selection models. Briefly, the Copas model is defined by 
+\begin{align}
+y_i &= \theta_i + \sigma_i \epsilon_i \\
+z_i &= \gamma_0 + \gamma_1 / s_i + \delta_i \\
+\epsilon_i, \delta_i &\sim \mbox{N}(0, 1), \quad \mbox{corr}(\epsilon_i, \delta_i) = \rho \\
+\theta_i &\sim \mbox{N}(\theta, \tau^2),
+\end{align}
+and we only observe $y_i$ if the latent selection parameter $z_i > 0$. The parameters $\gamma_0$ and $\gamma_1$ control the probability of publication. Larger $\gamma_0$ (=) larger probability of publication, larger $\gamma_1$ (=) larger selection effect based on the size of the study (standard error $s_i$). A single Copas selection model assumes values of $\gamma_0$ and $\gamma_1$, and estimates the overall mean effect $\theta$, the heterogeneity parameter $\tau^2$, and the correlation coefficient $\rho$, which controls the relationship between effect size $y_i$ and the probability of publication. 
+
+We stack over grids of Copas models, with grids being defined by choices of $\gamma_0$ and $\gamma_1$. We start with a fine grid comprised of each pairwise combination of $\gamma_0 \in (-1, -0.875, -0.75 \dots, 0.875, 1)$ and $\gamma_1 \in (0, 0.0625, 0.125, \dots, 1)$ for a $17 \times 17$ grid. We fit the Copas selection model for each pair $(\gamma_0, \gamma_1)$ using both Stan and JAGS, and calculate stacking weights using the methods described in Yao et al. (2018) with the loo package in R. We then repeat the process with $9 \times 9$ and $5 \times 5$ sub-grids of the original $17 \times 17$ grid, by taking every other and every fourth value of both $\gamma_0$ and $\gamma_1$.
+
+Below are plots comparing results for each grid using both Stan and JAGS. The top set of plots show the fine grid, with increasing coarseness in the second and third sets. For each plot, we display the stacked mean in the top-right corner.
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE)
+```
+
+```{r}
+library(rstan)
+library(loo)
+library(tidyverse)
+library(R2jags)
+library(here)
+library(gridExtra)
+
+copas.stacking <- readRDS(here("R", "Results", "copas.stacking.rds"))
+
+
+mean_stan_0 <- with(copas.stacking$stacking.0,
+                    round(weighted.mean(StanMean, StanWeight), 3))
+mean_stan_1 <- with(copas.stacking$stacking.1,
+                    round(weighted.mean(StanMean, StanWeight), 3))
+mean_stan_2 <- with(copas.stacking$stacking.2,
+                    round(weighted.mean(StanMean, StanWeight), 3))
+
+mean_jags_0 <- with(copas.stacking$stacking.0,
+                    round(weighted.mean(JAGSMean, JAGSWeight), 3))
+mean_jags_1 <- with(copas.stacking$stacking.1,
+                    round(weighted.mean(JAGSMean, JAGSWeight), 3))
+mean_jags_2 <- with(copas.stacking$stacking.2,
+                    round(weighted.mean(JAGSMean, JAGSWeight), 3))
+
+# means from stacking for subsets of posterior draws
+
+mean_stan_sub1 <- with(copas.stacking$stacking.0,
+                    round(weighted.mean(StanMean, Stan_subset1), 3))
+mean_stan_sub2 <- with(copas.stacking$stacking.0,
+                    round(weighted.mean(StanMean, Stan_subset2), 3))
+mean_jags_sub1 <- with(copas.stacking$stacking.0,
+                    round(weighted.mean(JAGSMean, JAGS_subset1), 3))
+mean_jags_sub2 <- with(copas.stacking$stacking.0,
+                    round(weighted.mean(JAGSMean, JAGS_subset2), 3))
+
+stan_0 <- copas.stacking$stacking.0 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = StanWeight, color = StanMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_stan_0, sep = "")) +
+  theme_bw()
+
+jags_0 <- copas.stacking$stacking.0 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = JAGSWeight, color = JAGSMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_jags_0, sep = "")) +
+  theme_bw()
+
+stan_1 <- copas.stacking$stacking.1 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = StanWeight, color = StanMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_stan_1, sep = "")) +
+  theme_bw()
+
+jags_1 <- copas.stacking$stacking.1 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = JAGSWeight, color = JAGSMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_jags_1, sep = "")) +
+  theme_bw()
+
+stan_2 <- copas.stacking$stacking.2 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = StanWeight, color = StanMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_stan_2, sep = "")) +
+  theme_bw()
+
+jags_2 <- copas.stacking$stacking.2 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = JAGSWeight, color = JAGSMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_jags_2, sep = "")) +
+  ylim(c(0, 1.25)) +
+  theme_bw()
+
+stan_sub1 <- copas.stacking$stacking.0 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = Stan_subset1, color = StanMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_stan_sub1, sep = "")) +
+  theme_bw()
+stan_sub2 <- copas.stacking$stacking.0 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = Stan_subset2, color = StanMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_stan_sub2, sep = "")) +
+  theme_bw()
+jags_sub1 <- copas.stacking$stacking.0 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = JAGS_subset1, color = JAGSMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_jags_sub1, sep = "")) +
+  theme_bw()
+jags_sub2 <- copas.stacking$stacking.0 %>%
+  ggplot(aes(x = gamma0, y = gamma1, size = JAGS_subset2, color = JAGSMean)) +
+  geom_point() +
+  scale_color_gradient(low = "green", high = "red") +
+  scale_size_continuous(range = c(0, 16)) +
+  labs(title = "Stacking weight and estimated mean") +
+  annotate("label", x = 0.6, y = 1.05, label = paste("Stacked Mean = ", mean_jags_sub2, sep = "")) +
+  theme_bw()
+
+```
+
+```{r full, fig.height = 9}
+
+grid.arrange(stan_0, jags_0, nrow = 2)
+
+```
+
+```{r small, fig.height = 9}
+
+grid.arrange(stan_1, jags_1, nrow = 2)
+
+```
+
+```{r smaller, fig.height = 9}
+
+grid.arrange(stan_2, jags_2, nrow = 2)
+
+```
+
+## Using subsets of posterior draws to determine stacking weights
+
+The above plots stacked over all 5000 posterior MCMC samples (1250 from 4 chains) for each fitted model. Here, we take two subsets of 2500 posterior samples (625 from each of 4 chains), stack over those samples, and see if results change.
+
+```{r stansub, fig.height = 7.5}
+
+grid.arrange(stan_sub1, stan_sub2, nrow = 2)
+
+```
+
+```{r jagssub, fig.height = 8}
+
+grid.arrange(jags_sub1, jags_sub2, nrow = 2)
+
+```

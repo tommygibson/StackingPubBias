@@ -69,50 +69,50 @@ meta.summary <- summary(meta.fit, pars = c("beta0", "delta0", "nu0", "PPVmean", 
 print(meta.summary$summary)
 
 ##### copas model!
-# set.seed(1)
-# S <- 20
-# mu0 <- 0.5
-# tau <- 0.25
-# s <- runif(S, 0.2, 0.6)
-# gamma0 <- -0.5
-# gamma1 <- 0.2
-# rho <- 0.6
-# 
-# mu <- rnorm(S, mu0, tau)
-# 
-# Sigma <- list()
-# y.z <- as.data.frame(matrix(nrow = S, ncol = 2))
-# 
-# for(i in 1:S){
-#   Sigma[[i]] <- matrix(c(s[i] ^ 2, rho * s[i], rho * s[i], 1), nrow = 2)
-#   y.z[i,] <- MASS::mvrnorm(1, c(mu[i], gamma0 + gamma1 / s[i]), Sigma[[i]])
-# }
-# 
-# y.z.s <- cbind.data.frame(y.z, s)
-# colnames(y.z.s) <- c("y", "z", "s")
-# 
-# sum(y.z.s$z > 0)
-# 
-# # truncate at z = 0
-# y.z.s <- y.z.s %>%
-#   filter(z > 0)
-# 
-# copas.dat <- list(S = dim(y.z.s)[1], 
-#                   y = y.z.s$y, 
-#                   s = y.z.s$s,
-#                   gamma0 = -0.5,
-#                   gamma1 = 0.4)
-# copas.dat.wrong <- list(S = dim(y.z.s)[1], 
-#                         y = y.z.s$y, 
-#                         s = y.z.s$s,
-#                         gamma0 = 3,
-#                         gamma1 = 1)
-# 
-# copas.fit.wrong <- stan(file = here("R", "copas.stan"), data = copas.dat,
-#                         iter = 15000)
-# copas.wrong.summary <- summary(copas.fit.wrong)
-# copas.wrong.summary$summary
-# copas.summary$summary
+set.seed(1)
+S <- 20
+mu0 <- 0.5
+tau <- 0.25
+s <- runif(S, 0.2, 0.6)
+gamma0 <- -0.5
+gamma1 <- 0.2
+rho <- 0.6
+
+mu <- rnorm(S, mu0, tau)
+
+Sigma <- list()
+y.z <- as.data.frame(matrix(nrow = S, ncol = 2))
+
+for(i in 1:S){
+  Sigma[[i]] <- matrix(c(s[i] ^ 2, rho * s[i], rho * s[i], 1), nrow = 2)
+  y.z[i,] <- MASS::mvrnorm(1, c(mu[i], gamma0 + gamma1 / s[i]), Sigma[[i]])
+}
+
+y.z.s <- cbind.data.frame(y.z, s)
+colnames(y.z.s) <- c("y", "z", "s")
+
+sum(y.z.s$z > 0)
+
+# truncate at z = 0
+y.z.s <- y.z.s %>%
+  filter(z > 0)
+
+copas.dat <- list(S = dim(y.z.s)[1],
+                  y = y.z.s$y,
+                  s = y.z.s$s,
+                  gamma0 = -0.5,
+                  gamma1 = 0.4)
+copas.dat.wrong <- list(S = dim(y.z.s)[1],
+                        y = y.z.s$y,
+                        s = y.z.s$s,
+                        gamma0 = 3,
+                        gamma1 = 1)
+
+copas.fit.wrong <- stan(file = here("R", "copas.stan"), data = copas.dat,
+                        iter = 15000)
+copas.wrong.summary <- summary(copas.fit.wrong)
+copas.wrong.summary$summary
+copas.summary$summary
 
 
 

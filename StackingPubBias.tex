@@ -123,10 +123,11 @@ Bayesian adaptations of the Copas model have been developed \citep{mavridis2013c
 
 We use $\mathcal{M}-open$ to refer to the setting in which our list of candidate models does not include the true data generating mechanism \citep{bernardo2009}. Bayesian stacking \citep{yao2018stacking} is an alternative to BMA that has superior performance in the $\mathcal{M}$-open setting. If we have $K$ candidate models, the goal is to find the set of optimal weights $w \in \mathcal{S}_1^K$, $\mathcal{S}_1^K = \{w \in [0,1]^K \: : \: \sum_{k = 1}^K w_k = 1\}$, that maximizes a score $S$ comparing weighted predictive distributions  $p_k(\tilde{y} \vert y, M_k)$ to the true distribution $p_t(\tilde{y} \vert y)$. \citet{yao2018stacking} replace $p(\tilde{y} \vert y, M_k)$ with its corresponding leave-one-out (LOO) predictive distribution $\hat{p}_{k, -i}(y_i) = \int p(Y_i \vert \theta_k, M_k) p(\theta_k \vert y_{-i}, M_k) d\theta_k$, where $M_k$ is model $k, k = 1, \dots, K$, and $\theta_k$ are the parameters in model $k$. The authors recommend the logarithmic scoring rule, which reduces the stacking problem to solving for weights $w$ in 
 \begin{align}
-\underset{w \in \mathcal{S}_1^K}{\mbox{max}} \frac{1}{n} \sum_{i = 1}^n \log \sum_{k = 1}^K w_k p(y_i \vert y_{-i}, M_k)
+\underset{w \in \mathcal{S}_1^K}{\mbox{max}} \: \frac{1}{n} \sum_{i = 1}^n \log \sum_{k = 1}^K w_k p(y_i \vert y_{-i}, M_k)
 \end{align}
-via optimization. 
-Instead of refitting each model $n$ times to obtain LOO distributions ${p}_{k}(y_i \vert y_{-i} M_k)$, \citet{yao2018stacking} use Pareto smoothed importance sampling (PSIS) \citep{vehtari2017psis} to obtain approximations. 
+via optimization. Instead of refitting each model $n$ times to obtain LOO distributions ${p}_{k}(y_i \vert y_{-i} M_k)$, \citet{yao2018stacking} use Pareto smoothed importance sampling (PSIS) \citep{vehtari2017psis} to obtain approximations. 
+
+
 
 Implementation of Bayesian stacking can be done using the R package `loo'. 
 
