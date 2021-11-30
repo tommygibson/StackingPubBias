@@ -25,11 +25,8 @@ model
   }
   
   tau2 = pow(tau, 2)
-  # rho ~ dunif(-.99, .99)
-  rho = rho_t * 2 - 1
-  
+  rho ~ dunif(-.99, .99)
   tau ~ dt(0, 1, 1) T(0,)
-  rho_t ~ dbeta(2, 2)
   theta ~ dnorm(0, .01)
   
   for(i in 1:S){

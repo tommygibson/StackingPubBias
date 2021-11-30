@@ -9,6 +9,7 @@ library(optimx)
 library(nloptr)
 library(loo)
 library(scico)
+library(RobustBayesianCopas)
 # data from meta-analysis with 37 studies
 # "dataset11" from R meta-analysis textbook
 
@@ -89,6 +90,7 @@ for(k in 1:K){
   
   log_lik_list_jags[[k]] <- as.matrix(copas.fit$BUGSoutput$sims.list$loglik)
 }
+
 
 copas_results <- list(log_lik_list_stan, mean.summary.stan, 
                       log_lik_list_jags, mean.summary.jags)

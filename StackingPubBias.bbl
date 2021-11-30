@@ -57,12 +57,6 @@ Egger, M., Smith, G.~D., Schneider, M., and Minder, C. (1997).
 \newblock Bias in meta-analysis detected by a simple, graphical test.
 \newblock {\em Bmj} {\bf 315,} 629--634.
 
-\bibitem[\protect\citeauthoryear{Gelman, Carlin, Stern, and Rubin}{Gelman
-  et~al.}{1995}]{gelman1995bda}
-Gelman, A., Carlin, J.~B., Stern, H.~S., and Rubin, D.~B. (1995).
-\newblock {\em Bayesian Data Analysis}.
-\newblock Chapman and Hall/CRC.
-
 \bibitem[\protect\citeauthoryear{Gelman, Lee, and Guo}{Gelman
   et~al.}{2015}]{gelman2015stan}
 Gelman, A., Lee, D., and Guo, J. (2015).
