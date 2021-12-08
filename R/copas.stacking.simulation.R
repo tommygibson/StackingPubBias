@@ -384,16 +384,29 @@ summary.func <- function(x){
 summary.func <- function(x){
   c(mean(x), sd(x), quantile(x, c(.025, .975)))
 }
+propensity.func <- function(y, s, p){
+  p.prop <- ifelse(p < 0.005, 1, 
+                   ifelse(p < 0.2, exp(-2 * p), 
+                          ifelse(p < 0.5, exp(-5 * p), .1)))
+  y.prop <- 1 / (1 + exp(-(3 * y)))
+  s.prop <- 1 / (1 + exp(-(2 - 4*s)))
+  
+  p.w <- 1/3
+  y.w <- 1/3
+  s.w <- 1/3
+  
+  return(p.w * p.prop + y.w * y.prop + s.w * s.prop)
+}
 
-set.seed(123)
+set.seed(1232)
 
 theta0 <- 0.4
 tau <- 0.2
 # rho <- 0.7
 # gamma0.true <- -0.5
 # gamma1.true <- 0.3
-S <- 100
-M <- 200
+S <- 50
+M <- 500
 
 weights <- matrix(nrow = M, ncol = 5) # weight for each model (mav, bai, 1-step, 2-step, 3-step)
 stacked.summary <- matrix(nrow = M, ncol = 4) # mean, sd, 2.5, 97.5
@@ -410,7 +423,6 @@ for(j in 1:M){
   s <- runif(S, 0.2, 0.8)
   # true study-level effects
   theta <- rnorm(S, mean = theta0, sd = tau)
-  p <- vector(length = S)
   
   # simulate y and z from bivariate normal
   # for(k in 1:S){
@@ -423,8 +435,8 @@ for(j in 1:M){
   # simulate y and censor it based on p-values
   
   for(k in 1:S){
-    dat[k, 1:2] <- c(rt(1, theta[k], s[k]), s[k])
-    dat[k, 3] <- pnorm(-dat[k, 1] / s[k])
+    dat[k, 1:2] <- c(rnorm(1, theta[k], s[k]), s[k])
+    dat[k, 3] <- 1 - pnorm(abs(dat[k, 1]) / s[k])
   }
   
   # complete data
@@ -435,10 +447,13 @@ for(j in 1:M){
   # observed studies
   # dat.select <- dat.full %>%
   #   filter(z > 0)
+  dat.full$propensity <- with(dat.full,
+                              propensity.func(y, s, p))
   dat.full$select <- NA
   for(k in 1:S){
-    dat.full$select[k] <- ifelse(dat.full$p[k] > 0.5, rbinom(1, 1, 0.2), 
-                                 ifelse(dat.full$p[k] > .05, rbinom(1, 1, 0.6), 1))
+    # dat.full$select[k] <- ifelse(dat.full$p[k] > 0.5, rbinom(1, 1, 0.2),
+    #                              ifelse(dat.full$p[k] > .05, rbinom(1, 1, 0.6), 1))
+    dat.full$select[k] <- rbinom(1, 1, dat.full$propensity[k])
   }
   dat.select <- dat.full %>%
     filter(select == 1)
@@ -513,13 +528,18 @@ for(j in 1:M){
   step2.dat <- list(S = S.select,
                     y = y,
                     s = s,
-                    steps = c(.1, .05),
+                    steps = c(.1, .01),
                     M = 2)
-  step3.dat <- list(S = S.select,
+  step2.dat.2 <- list(S = S.select,
                     y = y,
                     s = s,
-                    steps = c(.2, .1, .05),
-                    M = 3)
+                    steps = c(.2, .05),
+                    M = 2)
+  # step3.dat <- list(S = S.select,
+  #                   y = y,
+  #                   s = s,
+  #                   steps = c(.2, .1, .05),
+  #                   M = 3)
   
   fit.std <- fit.std <- jags(data = std.dat, parameters.to.save = std.params, inits = init.gen.std,
                              model.file = here("R", "std.meta.txt"), n.chains = 2, n.iter = 5000, DIC = FALSE)
@@ -541,7 +561,7 @@ for(j in 1:M){
                  iter = 2000, chains = 3)
   step.2 <- stan(file = here("R", "stepfunc.stan"), data = step2.dat,
                  iter = 2000, chains = 3)
-  step.3 <- stan(file = here("R", "stepfunc.stan"), data = step3.dat,
+  step.3 <- stan(file = here("R", "stepfunc.stan"), data = step2.dat.2,
                  iter = 2000, chains = 3)
   
   model.sums[(6 * j - 5):(6 * j),] <- cbind(c("std", "Mavridis", "Bai", "one.step", "two.step", "three.step"),

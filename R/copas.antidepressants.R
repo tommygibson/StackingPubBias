@@ -15,11 +15,8 @@ s <- anti.select$Standardized_SE
 S <- length(y)
 
 
-### Bai 2020 model
+### Data for each model
 
-bai.1 <- RobustBayesianCopas(y = y, s = s, re.dist = "Laplace")
-
-bai.1$theta.hat
 bai.dat <- list(S = S,
                 y = y,
                 s = s)
@@ -28,6 +25,11 @@ mav.dat <- list(S = S,
                 s = s,
                 L1 = 0.35, L2 = 0.45,
                 U1 = 0.75, U2 = 0.85)
+mav.dat.diff <- list(S = S,
+                     y = y,
+                     s = s,
+                     L1 = 0.3, L2 = 0.99,
+                     U2 = 1)
 init.gen.bai <- function(){
   list(
     z = runif(S, 0, 1),
@@ -114,6 +116,9 @@ copas.mav <- jags(data = mav.dat, inits = init.gen.mav, parameters.to.save = mav
 copas.mav.adj <- jags(data = mav.dat, inits = init.gen.mav.adj, parameters.to.save = mav.params,
                       model.file = here("R", "copas.jags.mavridis.adj.txt"),
                       n.iter = 10000, n.thin = 4, n.chains = 4)
+copas.mav.diff <- jags(data = mav.dat.diff, inits = init.gen.mav.adj, parameters.to.save = mav.params,
+                       model.file = here("R", "mavridis.diff.prior.txt"),
+                       n.iter = 10000, n.thin = 4, n.chains = 4)
 
 copas.bai <- jags(data = bai.dat, inits = init.gen.bai, parameters.to.save = bai.params,
                   model.file = here("R", "copas.jags.bai.txt"),
@@ -130,15 +135,7 @@ copas.bai.stack <- jags(data = bai.dat, inits = init.gen.bai.adj, parameters.to.
                         model.file = here("R", "copas.jags.bai.adj.txt"),
                         n.iter = 5000, n.thin = 2, n.chains = 4, DIC = FALSE)
 
-copas.sqrt.p <- jags(data = bai.dat, inits = init.gen.bai.adj, parameters.to.save = stack.params,
-                     model.file = here('R', 'copas.pval.sqrt.txt'),
-                     n.iter = 10000, n.thin = 4, n.chains = 4, DIC = FALSE)
-copas.log.p <- jags(data = bai.dat, inits = init.gen.logp, parameters.to.save = stack.params,
-                    model.file = here('R', 'copas.pval.log.txt'),
-                    n.iter = 5000, n.thin = 2, n.chains = 4, DIC = FALSE)
-copas.int.p <- jags(data = bai.dat, inits = init.gen.intp, parameters.to.save = intp.params,
-                    model.file = here('R', 'copas.p.interval.txt'),
-                    n.iter = 10000, n.thin = 4, n.chains = 4, DIC = FALSE)
+
 
 mav.bai.loglik <- list()
 mav.bai.loglik[[1]] <- copas.mav.stack$BUGSoutput$sims.list$loglik
