@@ -6,45 +6,45 @@ Database file #1: publication.bias.bib
 Warning--empty journal in light1984funnel
 Warning--empty journal in maier2020robma
 Warning--can't use both volume and number fields in plummer2003jags
-You've used 31 entries,
+You've used 32 entries,
             2146 wiz_defined-function locations,
-            713 strings with 9478 characters,
-and the built_in function-call counts, 14052 in all, are:
-= -- 1322
-> -- 758
-< -- 21
-+ -- 254
-- -- 240
-* -- 1332
-:= -- 2449
-add.period$ -- 92
-call.type$ -- 31
-change.case$ -- 232
-chr.to.int$ -- 31
-cite$ -- 34
-duplicate$ -- 477
-empty$ -- 854
-format.name$ -- 298
-if$ -- 2629
+            718 strings with 9592 characters,
+and the built_in function-call counts, 14593 in all, are:
+= -- 1379
+> -- 778
+< -- 23
++ -- 260
+- -- 246
+* -- 1372
+:= -- 2531
+add.period$ -- 95
+call.type$ -- 32
+change.case$ -- 239
+chr.to.int$ -- 32
+cite$ -- 35
+duplicate$ -- 501
+empty$ -- 889
+format.name$ -- 307
+if$ -- 2744
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 33
-newline$ -- 156
-num.names$ -- 124
-pop$ -- 186
+missing$ -- 34
+newline$ -- 161
+num.names$ -- 128
+pop$ -- 193
 preamble$ -- 1
-purify$ -- 234
+purify$ -- 241
 quote$ -- 0
-skip$ -- 340
+skip$ -- 363
 stack$ -- 0
-substring$ -- 973
-swap$ -- 221
-text.length$ -- 4
+substring$ -- 1017
+swap$ -- 236
+text.length$ -- 5
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 182
+type$ -- 188
 warning$ -- 3
-while$ -- 142
+while$ -- 148
 width$ -- 0
-write$ -- 398
+write$ -- 411
 (There were 3 warnings)
