@@ -1,0 +1,38 @@
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
+  \hline
+Bai & 0.130 & 0.175 & 0.925 & 0.692 & 0.190 \\
+  Mavridis & 0.066 & 0.184 & 0.978 & 0.728 & 0.164 \\
+  one.step & 0.169 & 0.125 & 0.808 & 0.491 & 0.194 \\
+  stacked & 0.060 & 0.167 & 0.951 & 0.664 & 0.160 \\
+  standard & 0.234 & 0.115 & 0.439 & 0.452 & 0.254 \\
+  three.step & 0.089 & 0.147 & 0.983 & 0.581 & 0.137 \\
+  two.step & 0.121 & 0.131 & 0.944 & 0.516 & 0.155 \\
+   \hline
+\end{tabular}
+\caption{Simulation results for selection function 1 with 30 base studies}
+\end{table}
+\efloatseparator
+ 
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
+  \hline
+Bai & 0.093 & 0.129 & 0.895 & 0.508 & 0.148 \\
+  Mavridis & 0.031 & 0.122 & 0.969 & 0.483 & 0.117 \\
+  one.step & 0.172 & 0.084 & 0.468 & 0.329 & 0.185 \\
+  stacked & 0.036 & 0.117 & 0.937 & 0.462 & 0.119 \\
+  standard & 0.220 & 0.076 & 0.130 & 0.297 & 0.230 \\
+  three.step & 0.099 & 0.101 & 0.870 & 0.396 & 0.131 \\
+  two.step & 0.130 & 0.090 & 0.743 & 0.353 & 0.149 \\
+   \hline
+\end{tabular}
+\caption{Simulation results for selection function 1 with 60 base studies}
+\end{table}
+\efloatseparator
+ 

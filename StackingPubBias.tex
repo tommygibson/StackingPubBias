@@ -75,26 +75,29 @@ Some models explicitly model the probability of publication for individual studi
 
 Recent approaches to mitigating publication bias have used Bayesian model averaged meta-analysis (BMA-MA) to consider a set of potential selection functions. \citet{guan2016} considers four different selection functions based on $p$-values, including a no-bias model, an extreme-bias model where studies with p-values $p > \alpha$ are never published, a 1-step function where studies with $p > \alpha$ are published with some probability $\pi < 1$, and a model where the probability of publication decreases exponentially with $p$. \citet{guan2016} only implement the models in a fixed-effects framework. \citet{maier2020robma} evaluates a set of 12 models, using a $2 \times 2 \times 2$ factorial design with fixed/random effects, a true null/alternative hypothesis, and the presence/absence of publication bias. \citet{maier2020robma} fit two-step and three-step selection functions based on p-values when publication bias is assumed, where the probability of publication changes at $p=0.05$ (one-step) or at both $p = 0.05$ and $p = 0.10$ (two-step).  
 
-Bayesian model averaging (BMA) effectively assumes that one of the considered models is the ``true" model, which is called the $\mathcal{M}$-closed setting \citep{bernardo2009}. BMA does not perform as well under the $\mathcal{M}$-complete or $\mathcal{M}$-open settings, where the true data generating mechanism is too complex to implement or to put into a probabilistic framework \citep{bernardo2009, le2017stacking}. Multiple issues arise for BMA in these settings, including (a) the need to specify prior model probabilities, which makes little sense when we know the true model is not in our list, and (b) the model weights from BMA will converge to 1 for the model ``closest" to the true model in terms of Kullback-Leibler divergence, and 0 for all others \citep{clyde2013bma}. Bayesian stacking of predictive distributions \citep{yao2018stacking, yao2021hierarchical}, is a method that outperforms Bayesian model averaging in the $\mathcal{M}$-complete and $\mathcal{M}$-open settings and avoids issues (a) and (b) above.  by calculating optimal weights using expected log-predictive densities and leave-one-out (LOO) cross validation. 
+Bayesian model averaging (BMA) effectively assumes that one of the considered models is the ``true" model, which is called the $\mathcal{M}$-closed setting \citep{bernardo2009}. BMA does not perform as well under the $\mathcal{M}$-complete or $\mathcal{M}$-open settings, where the true data generating mechanism is too complex to implement or to put into a probabilistic framework \citep{bernardo2009, le2017stacking}. Multiple issues arise for BMA in these settings, including (a) the need to specify prior model probabilities, which makes little sense when we know the true model is not in our list, and (b) the model weights from BMA will converge to 1 for the model ``closest" to the true model in terms of Kullback-Leibler divergence, and 0 for all others \citep{clyde2013bma}. Bayesian stacking of predictive distributions \citep{yao2018stacking, yao2021hierarchical} is a method that outperforms Bayesian model averaging in the $\mathcal{M}$-complete and $\mathcal{M}$-open settings and avoids issues (a) and (b) above. If we have $K$ candidate models $M_1, \dots, M_K$, \citet{yao2018stacking} solve for model weights $w = (w_1, \dots, w_K)$ under the constraint $w \in \mathcal{S}_1^K$ where $\mathcal{S}_1^K = \{w \in [0,1]^K : \sum_{k=1}^K w_k = 1\}$. They do this by solving
+\begin{equation}
+(\hat{w}_1, \dots, \hat{w}_K) =  \underset{w \in \mathcal{S}_1^K}{\mbox{max}} \: \frac{1}{S} \sum_{i = 1}^n \log \sum_{k = 1}^K w_k p(y_i \vert y_{-i}, M_k)
+\end{equation}
+where $p(y_i \vert y_{-i}, M_k)$ is the leave-one-out (LOO) posterior predictive density with the $i$th data point left out evaluated at $y_i$. It would be computationally costly to refit each model $M_k$ $S$ times, so LOO densities $p(y_i \vert y_{-i}, M_k)$ are approximated using Pareto-smoothed importance sampling \citep{vehtari2017psis}. We go through Bayesian stacking more thoroughly in Section \ref{sec:stacking}.
 
-We propose using Bayesian stacking to mitigate publication bias by incorporating multiple different selection models. \citet{copas2001sensitivity} recommends a sensitivity analysis over a grid of possible patterns of publication bias, each of which returns a bias-adjusted mean effect size estimate. A stacked estimate of the mean effect size can be obtained through a weighted average of estimates with the weights coming from Bayesian stacking. Assumed patterns of publication bias that poorly predict the observed data with LOO cross validation will be given little weight. We propose stacking over multiple types of models, including step functions \citep{hedges1992selection, vevea1995pubbias} and Bayesian Copas selection models \citet{mavridis2013copas, bai2020}. 
+Given that the true data generating mechanism for publication bias is likely much too complex to be specified in a simple selection model, we propose using Bayesian stacking to mitigate publication bias by fitting multiple Bayesian selection models and stacking over them. Assumed patterns of publication bias that poorly predict the observed data with LOO cross validation will be given little weight. We propose stacking over multiple types of models, including step functions \citep{vevea1995pubbias} and Bayesian Copas selection models \citet{mavridis2013copas, bai2020}. Section \ref{sec:methods} describes relevant selection models for publication bias, Bayesian stacking, and how to implement Bayesian stacking of selection models. We then describe and summarize a simulation study in Section \ref{sec:simulation}. The purpose of the simulation is to compare a stacked estimate of the mean effect size to estimates from individual selection models when the true data generator is not one of the fitted selection models. We apply the stacked model to a real dataset on the effectiveness of antidepressants in Section \ref{sec:numex}
 
 \section{Methods} \label{sec:methods}
 
-Say we have $S$ studies indexed by $i = 1, \dots, S$, and each study provides an estimated effect $y_i$ and an associated standard error $s_i$. 
-
-\subsection{Selection models based on p-values} \label{sec:pvalue}
-
-The first selection models for publication bias assumed the selection process was based solely on $p$-values. Here we consider a subset of $p$-value-based models that split the unit interval $[0, 1]$ into $K$ sub-intervals, where studies with $p$-values that fall into different intervals have different probabilities of publication \citep{hedges1992selection, vevea1995pubbias, vevea2005sensitivity}. The data model is that of a standard random effects meta-analysis: let $y_1, \dots, y_S$ be observed effect sizes with associated standard errors $s_i$.  We model the observed effects as
+We are doing a meta-analysis and have $S$ studies indexed by $i = 1, \dots, S$, and each study provides an estimated effect $y_i$ and an associated standard error $s_i$. Assuming estimates $y_i$ are normally distributed, we calculate study $i$'s 2-sided $p$-value as $p_i = 2 \times \big(1 - \Phi(\vert y_i \vert / s_i)\big)$ where $\Phi(\cdot)$ is the standard normal cumulative distribution function. The data model for each selection method is
 \begin{align}
-y_i \vert \theta_i & \sim \mbox{N}(\theta_i, s_i ^ 2)  \label{eq:y} \\
+y_i & = \theta_i + s_i \epsilon_i \label{eq:y} \\
 \theta_i \vert \theta, \tau ^ 2 & \sim \mbox{N}(\theta, \tau ^ 2) \label{eq:thetai}
 \end{align}
-where $\theta_i$ represent random study effects normally distributed around global mean $\theta$ and with variance $\tau^2$. Here we combine the study-specific standard errors $s_i$ and the between-study variability $\tau^2$ into a single residual so that 
+where $\theta_i$ represent random study effects normally distributed around global mean $\theta$ with variance $\tau^2$, and $\epsilon_i \sim \text{N}(0, 1)$. For stepped weight functions we combine $s_i^2$ and $\tau^2$ into a single residual so that
 \begin{align}
 y_i \vert \theta, \tau^2 &\sim \text{N}(\theta, s_i^2 + \tau^2).
 \end{align}
-We then define a stepped weight function $w(\cdot)$, where $w(p)$ represents the probability that a study with $p$-value $p$ is observed. Dividing the unit interval into $K$ sub-intervals with descending endpoints $a_k$ in which the weight function $w(p)$ is constant, we have that
+
+\subsection{Selection models based on p-values} \label{sec:pvalue}
+
+We define a stepped weight function $w(\cdot)$ similar to \citet{vevea1995pubbias} and \citet{vevea2005sensitivity}, where $w(p)$ represents the probability that a study with $p$-value $p$ is observed. Dividing the unit interval into $K$ sub-intervals with descending endpoints $a_k$ in which the weight function $w(p)$ is constant, we have that
 \begin{equation} % weight function
 w(p_i) =
 	\begin{cases}
@@ -107,7 +110,7 @@ where $a_0 = 1$ and $a_K = 0$. Say $\boldsymbol{\omega} = (\omega_1, \dots, \ome
 \begin{equation} % weighted normal pdf
 f(y_i \vert \theta, \tau^2, \boldsymbol{\omega}) = \frac{\phi(y_i ; \theta, \tau^2 + s_i^2) \times w(p_i)}{\int \phi(x ; \theta, \tau^2 + s_i^2) \times w(1 - \Phi(x/2)) dx}, \label{eq:weightednormal}
 \end{equation}
-where $\phi(x)$ and $\Phi(x)$ represent the standard normal probability density and cumulative density functions, respectively. \citet{maier2020robma} place a ``cumulative-Dirichlet" prior distribution on the weights $\boldsymbol{\omega}$, which effectively means placing a symmetric Dirichlet prior on an auxiliary parameter $\widetilde{\boldsymbol{\omega}} \in (0, 1)^K$ and taking the cumulative sum 
+where $\phi(x; a, b)$ represents a normal probability density function with mean $a$ and variance $b$. \citet{maier2020robma} place a ``cumulative-Dirichlet" prior distribution on the weights $\boldsymbol{\omega}$, which effectively means placing a symmetric Dirichlet prior on an auxiliary parameter $\widetilde{\boldsymbol{\omega}} \in (0, 1)^K$ and taking the cumulative sum 
 \begin{align}
 \begin{split}
 \widetilde{\boldsymbol{\omega}} & \sim \text{Dirichlet}(\text{rep}(1, K))  \\
@@ -126,13 +129,11 @@ This restricts $\boldsymbol{\omega}$ so that the $K$ intervals in \eqref{eq:weig
 
 \subsection{Copas selection model} \label{sec:copas}
 
-The Copas selection model \citep{copas1999what, copas2000funnel, copas2001sensitivity} assumes that the selection mechanism for publication depends study effects $y_i$ and associated standard errors $s_i$ instead of $p$-values. The data model is
+The Copas selection model \citep{copas1999what, copas2000funnel, copas2001sensitivity} models the selection mechanism for publication as a function of study effect $y_i$ and associated standard error $s_i$. We introduce a latent variable $z_i$ modeled as
 \begin{align}
-y_i &= \theta_i + s_i \epsilon_i \label{eq:copas_y} \\
-z_i &= \gamma_0 + \frac{\gamma_1}{s_i} + \delta_i \label{eq:zi} \\
-\theta_i & \sim \mbox{N}(\theta, \tau^2) \label{eq:copas_theta}
+z_i &= \gamma_0 + \frac{\gamma_1}{s_i} + \delta_i, \label{eq:zi} 
 \end{align}
-where $\theta_i$ is again study $i$'s true effect, $\theta$ is the global mean effect, and $\tau^2$ describes between-study heterogeneity. The latent factor $z_i$ models the publication process, where study $i$ is selected (published) only if $z_i > 0$. The parameter $\gamma_0$ controls the baseline probability of publication, and $\gamma_1$ defines the relationship between the observed standard deviation $s_i$ and the probability of publication. Usually $\gamma_1$ is assumed to be positive, so that studies with smaller standard errors are more likely to be published. The random effects $(\epsilon_i, \delta_i)$ are modeled as bivariate normal
+where $z_i$ models the publication process such that study $i$ is selected (published) only if $z_i > 0$. The parameter $\gamma_0$ controls the baseline probability of publication, and $\gamma_1$ defines the relationship between the observed standard deviation $s_i$ and the probability of publication. Usually $\gamma_1$ is assumed to be positive, so that studies with smaller standard errors are more likely to be published. The random effects $(\epsilon_i, \delta_i)$ are modeled as bivariate normal
 \begin{align}
 \begin{pmatrix}
 \epsilon_i \\
@@ -191,7 +192,7 @@ After stacking weights $w$ have been optimized, the stacked posterior distributi
 Implementation of Bayesian stacking can be done using the R package `loo'. 
 
 
-\subsection{Stacking selection models for publication bias}
+\subsection{Stacking selection models for publication bias} \label{sec:stacked_models}
 
 It would be naive to think that either the stepped selection functions in Section \ref{sec:pvalue} or the Copas models in Section \ref{sec:copas} represent the true data generating mechanism for publication bias. As Bayesian stacking is designed to perform well in the event that our model list does not contain the true model, we propose stacking over a variety of stepped selection functions and Copas models to obtain a more robust posterior distribution for the mean parameter $\theta$. We fit both Bayesian Copas selection models \citep{mavridis2013copas, bai2020} and a set of stepped selection models with varying numbers of steps. As a default, we use a 1-step function with the step at $p=0.05$, a two-step function with steps at $p = (0.05, 0.10)$, and a three-step function with steps $p = (0.05, 0.10, 0.20)$. 
 
@@ -208,7 +209,7 @@ u_i
 \rho s_i & 1
 \end{pmatrix}\right) \mathbbm{1}_{z_i > 0} \label{eq:copas_rewrite}
 \end{align}
-we see that we can first sample $z_i$ from a truncated normal $z_i \sim \text{N}(u_i, 1) \mathbbm{1}_{z_i > 0}$, and then sample $y_i \vert z_i \sim \text{N}(\text{E}(y_i \vert z_i), \text{Var}(y_i \vert z_i))$ where $\text{E}(y_i \vert z_i) = \theta + \rho s_i (z_i - u_i)$ and $\text{Var}(y_i \vert z_i) = \tau^2 + s_i^2 (1 - \rho ^ 2)$. We also need to extract the log-likelihood for each observation $(y_i, s_i)$ in order to stack models. The model construction \label{eq:copas_rewrite} leads to a simple form for the log-likelihood 
+we see that we can first sample $z_i$ from a truncated normal $z_i \sim \text{N}(u_i, 1) \mathbbm{1}_{z_i > 0}$, and then sample $y_i \vert z_i \sim \text{N}\big(\text{E}[y_i \vert z_i], \text{Var}[y_i \vert z_i]\big)$ where $\text{E}[y_i \vert z_i] = \theta + \rho s_i (z_i - u_i)$ and $\text{Var}[y_i \vert z_i] = \tau^2 + s_i^2 (1 - \rho ^ 2)$. We also need to extract the log-likelihood for each observation $(y_i, s_i)$ in order to stack models. The model construction \eqref{eq:copas_rewrite} leads to a simple form for the log-likelihood 
 \begin{align}
 \begin{split}
 L(\theta, \tau^2, \rho, \gamma_0, \gamma_1) &= \sum_{i = 1} ^ S \log[p(y_i \vert z_i > 0, s_i)] \\
@@ -226,23 +227,34 @@ We fit the stepped selection models in Stan \citep{gelman2015stan} because of th
 
 \section{Simulation} \label{sec:simulation}
 
-We assess model performance using bias, 95\% interval coverage, 95\% interval length, and root-mean squared error (RMSE). We use a factorial design with $\theta = (0, 0.4)$ and $\tau = 0.2$, sample $S = 30, 60, 100$ values $s_i$, $i = 1, \dots, S$ from a Uniform(0.2, 0.8) distribution as study-specific standard errors, and sample $\theta_i \sim \text{N}(\theta, \tau^2)$ or $\theta \sim t(\theta, \tau^2, df = 4)$ as true study effects. We then sample $y_i \sim \text{N}(\theta_i, s_i^2)$ as observed study effects. Because we propose stacking models when the true model is not in our list, we use several complex selection mechanisms that endow each study $i$ with a probability $\alpha_i$ of being observed as $f(y_i, s_i, p_i)$, where $p_i = 2 \times (1 - \Phi(\vert y_i \vert / s_i))$ and a selection indicator for each study $i$ is drawn from $\text{Bernoulli}(\alpha_i)$.
+The aim of the simulation is to assess how well the stacked model described in Section \ref{sec:stacked_models} \textit{stacks up} against the individual models $<$please help me find a way to keep the pun in here$>$. We simulate data for meta-analyses using a $2\times3$ factorial design with $\theta = (0, 0.4)$ and number of studies per meta analysis $S = (30, 60, 100)$ for 6 total scenarios. For each simulation scenario $j = 1, \dots, 6$ we set $\tau = 0.2$ and study-specific standard errors $s_i$, $i = 1, \dots, S$, are distributed as Uniform(0.2, 0.8). Study-specific true mean effects $\theta_i$ are distributed as $\theta_i \sim \text{N}(\theta, \tau^2)$. We then sample $y_i \sim \text{N}(\theta_i, s_i^2)$ as observed study effects. Each study $i$ is assigned a probability of publication $\alpha_i$ based on one of multiple selection functions which are chosen deliberately such that none of the stepped selection models or Copas models can individually capture the true selection mechanism. Whether or not each study $i$ is included in the meta-analysis is then determined by an indicator $B_i \sim \text{Bernoulli}(\alpha_i)$. 
+
+Model performance is evaluated using bias, 95\% interval coverage, 95\% interval length, and root-mean squared error (RMSE). 
+
+\subsection{Selection functions}
+
+The first selection function $f_1(p)$ decreases with one-sided $p$-values, i.e. $p_i = 1 - \Phi(y_i / s_i)$. It is constant at $f_1(p) = 1$ for $p \in [0, 0.005)$. It then decreases exponentially as $f_1(p) = \exp(-2p)$ for $p \in [0.005, 0.2)$. There is then a step at $p=0.2$, and $f_1(p) = \exp(-4p)$ for $p \in [0.2, 0.5)$, and is constant at $f_1(p) = 0.1$ for $p \in [0.5, 1]$. See Figure [reference figure] for a graphical depiction.
+
+\subsection{Simulation results}
+
+We simulated $K=1000$ iterations for each scenario $j$.
+
+\section{Numerical example} \label{sec:numex}
 
 
 
 
+%%%%%% Tables!
 
-%We consider a grid of values for $(\gamma_0, \gamma_1)$ as in \citet{copas2001sensitivity}. If we use $K$ values for each of $\gamma_0$ and $\gamma_1$, we will have $K^2$ total models. To apply stacking to the $K^2$ models, we fit each model $k$ in either JAGS \citep{plummer2003jags} or Stan \citep{gelman2015stan}. In JAGS we follow \citet{mavridis2013copas} by first sampling $z_i$ from its marginal distribution $z_i \sim \mbox{N}(u_i, 1) I_{z_i > 0}$ which is truncated normal. We can then sample from the conditional distribution $y_i \vert z_i, \theta, \tau^2, \rho \sim \mbox{N} \big( \mbox{E}(y_i \vert z_i), \mbox{var}(y_i \vert z_i) \big)$, where $\mbox{E}(y_i \vert z_i) = \theta + \rho \sigma_i (z_i - u_i)$ and $\mbox{var}(y_i \vert z_i) = \tau^2 + \sigma_i^2(1 - \rho^2)$. 
-%
-%In Stan we use the log-likelihood function \eqref{eq:loglik} directly to define the target log density. In both models we use weakly informative prior distributions for $\theta$ and $\tau$
-%\begin{align}
-%\theta &\sim \mbox{N}(0, 100) \label{eq:theta} \\
-%\tau &\sim \mbox{half-Cauchy}(A) \label{eq:tau}
-%\end{align}
-%where we set the scale parameter $A$ to be between 0.5 and 1 for meta-analyses of log-odds ratios. We use a $\mbox{Beta}(2, 2)$ prior for the transformed correlation parameter $\frac{\rho + 1}{2}$ \citep{gelman1995bda}.
-%
-%In order to use stacking with the `loo' package, we need to sample from the posterior log-likelihood \eqref{eq:loglik}. If we have studies $i = 1, \dots, S$ and $M$ iterations of Markov chain Monte Carlo (MCMC), we sample $\mbox{loglik}_i^{(m)}$ for each study $i$ and iteration $m = 1, \dots, M$.
+\begin{table}[ht]\centering\begin{tabular}{lrrrrr}  \hlineModel & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\   \hlineBai & 0.130 & 0.175 & 0.925 & 0.692 & 0.190 \\   Mavridis & 0.066 & 0.184 & 0.978 & 0.728 & 0.164 \\   one.step & 0.169 & 0.125 & 0.808 & 0.491 & 0.194 \\   stacked & 0.060 & 0.167 & 0.951 & 0.664 & 0.160 \\   standard & 0.234 & 0.115 & 0.439 & 0.452 & 0.254 \\   three.step & 0.089 & 0.147 & 0.983 & 0.581 & 0.137 \\   two.step & 0.121 & 0.131 & 0.944 & 0.516 & 0.155 \\    \hline\end{tabular}
+\caption{Simulation results for selection function 1 with 30 base studies}\end{table}
 
+\begin{table}[ht]\centering\begin{tabular}{lrrrrr}  \hlineModel & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\   \hlineBai & 0.093 & 0.129 & 0.895 & 0.508 & 0.148 \\   Mavridis & 0.031 & 0.122 & 0.969 & 0.483 & 0.117 \\   one.step & 0.172 & 0.084 & 0.468 & 0.329 & 0.185 \\   stacked & 0.036 & 0.117 & 0.937 & 0.462 & 0.119 \\   standard & 0.220 & 0.076 & 0.130 & 0.297 & 0.230 \\   three.step & 0.099 & 0.101 & 0.870 & 0.396 & 0.131 \\   two.step & 0.130 & 0.090 & 0.743 & 0.353 & 0.149 \\    \hline\end{tabular}
+\caption{Simulation results for selection function 1 with 60 base studies}\end{table}
+
+
+
+%%%% Bibliography
 \bibliographystyle{biom}
 \bibliography{publication.bias}
 
