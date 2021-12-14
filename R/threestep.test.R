@@ -10,7 +10,7 @@ library(R2jags)
 
 # simulate some data that matches the assumed pattern
 set.seed(421)
-S <- 200
+S <- 300
 theta0 <- 0.4
 tau <- 0.2
 
@@ -25,7 +25,8 @@ for(i in 1:S){
   y[i] <- rnorm(1, theta[i], sd = s[i])
   p[i] <- min(2 * (1 - pnorm(y[i] / s[i])), 1)
   select[i] <- ifelse(p[i] < 0.05, 1,
-                      ifelse(p[i] < 0.1, rbinom(1, 1, 0.6), rbinom(1, 1, 0.5)))
+                      ifelse(p[i] < 0.1, rbinom(1, 1, 0.6), 
+                             ifelse(p[i] < 0.2, rbinom(1, 1, 0.5), rbinom(1, 2, 0.2))))
 }
 
 dat <- data.frame(y = y,
@@ -34,14 +35,15 @@ dat <- data.frame(y = y,
                   select = select)
 
 dat.select <- dat %>%
-  filter(select == 1)
+  filter(select == 1) %>%
+  select(!select)
 
 threestep.dat <- list(y = dat.select$y,
                       s = dat.select$s,
                       S = dim(dat.select)[1])
 
 threestep.fit <- stan(file = here("R", "three_step.stan"), data = threestep.dat,
-                      iter = 1000, chains = 4)
+                      iter = 1000, chains = 2)
 twostep.fit <- stan(file = here("R", "two_step.stan"), data = threestep.dat,
                     iter = 1000, chains = 2)
 
@@ -70,10 +72,10 @@ mav.inits <- function(){
     p.high = runif(1, 0.6, 0.9)
   )
 }
-mav.params <- c("theta0", "tau")
+mav.params <- c("theta0", "loglik")
 
 mav.fit <- jags(mav.dat, mav.inits, mav.params, model.file = here("R", "copas.jags.mavridis.adj.txt"),
-                n.iter = 1000, n.chains = 2)
+                n.iter = 2000, n.chains = 2)
 mav.fit$BUGSoutput$summary
 loglik_list <- list()
 loglik_list[[1]] <- threestep.loglik
@@ -90,7 +92,7 @@ steps <- list(c(.05), c(.1, .05), c(.2, .1, .05))
 steps1.dat <- list(y = dat.select$y,
                    s = dat.select$s,
                    S = dim(dat.select)[1],
-                   steps = steps[[1]],
+                   steps = array(steps[[1]], dim=1),
                    M = length(steps[[1]]))
 steps2.dat <- list(y = dat.select$y,
                    s = dat.select$s,
@@ -104,11 +106,21 @@ steps3.dat <- list(y = dat.select$y,
                    M = length(steps[[3]]))
 
 steps1.fit <- stan(file = here("R", "stepfunc.stan"), data = steps1.dat,
-                   iter = 1000, chains = 4)
+                   iter = 2000, chains = 2)
 steps2.fit <- stan(file = here("R", "stepfunc.stan"), data = steps2.dat,
-                   iter = 1000, chains = 4)
+                   iter = 2000, chains = 2)
 steps3.fit <- stan(file = here("R", "stepfunc.stan"), data = steps3.dat,
-                   iter = 1000, chains = 4)
+                   iter = 2000, chains = 2)
 summary(steps3.fit, pars = c("theta", "tau", "omega"))$summary
 
+loglik_list <- list()
+loglik_list[[1]] <- extract_log_lik(steps1.fit, parameter_name = "loglik")
+loglik_list[[2]] <- extract_log_lik(steps2.fit, parameter_name = "loglik")
+loglik_list[[3]] <- extract_log_lik(steps3.fit, parameter_name = "loglik")
+loglik_list[[4]] <- mav.fit$BUGSoutput$sims.list$loglik
 
+r_eff_list <- lapply(loglik_list, function(x){
+  relative_eff(exp(x), chain_id = rep(1:2, each = 1000))
+})
+
+step.weights <- loo_model_weights(loglik_list, method = 'stacking', r_eff_list = r_eff_list)

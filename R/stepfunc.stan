@@ -34,7 +34,7 @@ functions {
     real tot_var = sigma ^ 2 + tau ^ 2; // study-specific var plus random effects var
     real tot_sd = sqrt(tot_var);
     real logdensity;
-    vector[T] crits;
+    vector[T] crits; // critical values
 
     for(t in 1:T){
       crits[t] = (fabs(inv_Phi(steps[t] / 2)) * sigma - theta) / tot_sd; // define std normal quantiles associated with steps

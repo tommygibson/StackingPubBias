@@ -380,22 +380,28 @@ summary.func <- function(x){
 # 
 # saveRDS(stacked.summary, here("R", "Results", "small.stack.simulation.rds"))
 # simulate standard errors and true means for studies
-
+# propensity.func.1 <- function(y, s, p){
+#   p.prop <- ifelse(p < 0.005, 1, 
+#                    ifelse(p < 0.2, exp(-2 * p), 
+#                           ifelse(p < 0.5, exp(-5 * p), .1)))
+#   y.prop <- 1 / (1 + exp(-(3 * y)))
+#   s.prop <- 1 / (1 + exp(-(2 - 4*s)))
+#   
+#   p.w <- 1/3
+#   y.w <- 1/3
+#   s.w <- 1/3
+#   
+#   return(p.w * p.prop + y.w * y.prop + s.w * s.prop)
+# }
 summary.func <- function(x){
   c(mean(x), sd(x), quantile(x, c(.025, .975)))
 }
-propensity.func <- function(y, s, p){
+propensity.func.1 <- function(p){
   p.prop <- ifelse(p < 0.005, 1, 
                    ifelse(p < 0.2, exp(-2 * p), 
-                          ifelse(p < 0.5, exp(-5 * p), .1)))
-  y.prop <- 1 / (1 + exp(-(3 * y)))
-  s.prop <- 1 / (1 + exp(-(2 - 4*s)))
+                          ifelse(p < 0.5, exp(-4 * p), .1)))
   
-  p.w <- 1/3
-  y.w <- 1/3
-  s.w <- 1/3
-  
-  return(p.w * p.prop + y.w * y.prop + s.w * s.prop)
+  return(p.prop)
 }
 
 set.seed(1232)
@@ -405,7 +411,7 @@ tau <- 0.2
 # rho <- 0.7
 # gamma0.true <- -0.5
 # gamma1.true <- 0.3
-S <- 50
+S <- 30
 M <- 500
 
 weights <- matrix(nrow = M, ncol = 5) # weight for each model (mav, bai, 1-step, 2-step, 3-step)
@@ -448,7 +454,7 @@ for(j in 1:M){
   # dat.select <- dat.full %>%
   #   filter(z > 0)
   dat.full$propensity <- with(dat.full,
-                              propensity.func(y, s, p))
+                              propensity.func.1(p))
   dat.full$select <- NA
   for(k in 1:S){
     # dat.full$select[k] <- ifelse(dat.full$p[k] > 0.5, rbinom(1, 1, 0.2),
@@ -620,6 +626,10 @@ weights <- as.data.frame(weights)
 names(stacked.summary) <- c("est.mean", "sd", "ci.lower", "ci.upper")
 names(model.sums) <- c("model", "iteration", "est.mean", "sd", "ci.lower", "ci.upper")
 names(weights) <- c("mav", "bai", "one.step", "two.step", "three.step")
+
+stack.sim.1 <- list(stacked.summary, model.sums, weights, data.summary, funnel.plots)
+names(stack.sim.1) <- c("stacked", "models", "weights", "data", "funnel.plots") ### theta0 = 0.4, tau = 0.2
+saveRDS(stack.sim.1)
 copas.sim.firsthalf <- list(stacked.summary, model.sums, weights)
 names(copas.sim.firsthalf) <- c("stacked", "models", "weights")
 saveRDS(copas.sim.firsthalf, here("R", "Results", "copas.sim.firsthalf.rds"))
@@ -630,164 +640,10 @@ model.sums %>%
   summarize(m = mean(as.numeric(est.mean)),
             s = sd(as.numeric(est.mean)),
             ms = mean(as.numeric(sd)),
-            cover = sum(ci.lower < 0.4 & ci.upper > 0.4))
-for(j in (M / 2 + 1):M){
-  
-  # dat contains simulated y and z
-  dat <- matrix(nrow = S, ncol = 2)
-  # standard errors
-  s <- runif(S, 0.2, 0.8)
-  # true study-level effects
-  theta <- rnorm(S, mean = theta0, sd = tau)
-  
-  # simulate y and z from bivariate normal
-  for(k in 1:S){
-    Sigma <- matrix(c(s[k] ^ 2, rho * s[k], rho * s[k], 1), byrow = T, nrow = 2)
-    mu <- c(theta[k], gamma0.true + gamma1.true / s[k])
-    
-    dat[k,] <- MASS::mvrnorm(n = 1, mu = mu, Sigma = Sigma)
-  }
-  
-  # complete data
-  dat.full <- cbind.data.frame(dat, s)
-  names(dat.full) <- c('y', 'z', 's')
-  
-  # observed studies
-  dat.select <- dat.full %>%
-    filter(z > 0)
-  
-  S.select <- dim(dat.select)[1]
-  y <- dat.select$y
-  s <- dat.select$s
-  p <- 2 * pnorm(-y / s)
-  
-  data.summary[j,] <- c(S.select, mean(dat.select$y), mean(dat.full$y), mean(dat.select$s), mean(dat.full$s))
-  funnel.plots[[j]] <- ggplot(dat.full, aes(x = y, y = s, color = (z > 0))) + 
-    geom_point()
-  
-  init.gen.std <- function(){
-    list(
-      theta0 = rnorm(1, 0, 0.25),
-      tau = runif(1, 0.1, 0.4)
-    )
-  }
-  init.gen.bai.adj <- function(){
-    list(
-      z = runif(S.select, 0, 1),
-      theta0 = rnorm(1, 0, 0.25),
-      rho = runif(1, -0.5, 0.5),
-      tau = runif(1, 0.1, 0.5),
-      gamma0 = runif(1, -1, 1),
-      gamma1 = runif(1, 0, max(s))
-    )
-  }
-  
-  init.gen.mav.adj <- function(){
-    list(
-      z = runif(S.select, 0, 1),
-      theta0 = rnorm(1, 0, 0.25),
-      rho = runif(1, -0.5, 0.5),
-      tau = runif(1, 0.1, 0.5),
-      p.low = runif(1, 0.38, 0.42),
-      p.high = runif(1, 0.78, 0.82)
-    )
-  }
-  
-  init.gen.logp <- function(){
-    list(
-      z = runif(S.select, 0, 1),
-      theta0 = rnorm(1, 0, 0.25),
-      rho = runif(1, -0.5, 0.5),
-      tau = runif(1, 0.1, 0.5),
-      gamma0 = runif(1, -1, 1),
-      gamma1 = runif(1, 0, 1 / max(-log(p)))
-    )
-  }
-  
-  stack.params <- c("theta0", "loglik")
-  std.params <- c("theta0")
-  std.dat <- list(S = S.select,
-                  y = y,
-                  s = s)
-  
-  bai.dat <- log.p.dat <- std.dat <- list(S = S.select,
-                                          y = y,
-                                          s = s)
-  
-  mav.dat <- list(S = S.select,
-                  y = y,
-                  s = s,
-                  L1 = 0.1, L2 = 0.45,
-                  U1 = 0.55, U2 = 0.9)
-  
-  fit.std <- fit.std <- jags(data = std.dat, parameters.to.save = std.params, inits = init.gen.std,
-                             model.file = here("R", "std.meta.txt"), n.chains = 2, n.iter = 5000, DIC = FALSE)
-  copas.mav <- jags(data = mav.dat, inits = init.gen.mav.adj, parameters.to.save = stack.params,
-                    model.file = here("R", "copas.jags.mavridis.adj.txt"),
-                    n.iter = 5000, n.thin = 2, n.chains = 3, DIC = FALSE)
-  copas.bai <- jags(data = bai.dat, inits = init.gen.bai.adj, parameters.to.save = stack.params,
-                    model.file = here("R", "copas.jags.bai.adj.txt"),
-                    n.iter = 5000, n.thin = 2, n.chains = 3, DIC = FALSE)
-  
-  # copas.sqrt.p <- jags(data = bai.dat, inits = init.gen.logp, parameters.to.save = stack.params,
-  #                      model.file = here('R', 'copas.pval.sqrt.txt'),
-  #                      n.iter = 10000, n.thin = 4, n.chains = 4, DIC = FALSE)
-  copas.log.p <- jags(data = log.p.dat, inits = init.gen.logp, parameters.to.save = stack.params,
-                      model.file = here('R', 'copas.pval.log.txt'),
-                      n.iter = 5000, n.thin = 2, n.chains = 3, DIC = FALSE)
-  
-  model.sums[(4 * j - 3):(4 * j),] <- cbind(c("std", "Mavridis", "Bai", "log.p"),
-                                            rep(j, 4),
-                                            rbind(fit.std$BUGSoutput$summary[c(1:3, 7)],
-                                                  copas.mav$BUGSoutput$summary[(S.select + 1), c(1:3, 7)], #1-3, 7 are mean, sd, 2.5, 97.5
-                                                  copas.bai$BUGSoutput$summary[(S.select + 1), c(1:3, 7)],
-                                                  copas.log.p$BUGSoutput$summary[(S.select + 1), c(1:3, 7)]))
-  
-  loglik <- list()
-  loglik[[1]] <- copas.mav$BUGSoutput$sims.list$loglik
-  loglik[[2]] <- copas.bai$BUGSoutput$sims.list$loglik
-  # loglik[[3]] <- copas.sqrt.p$BUGSoutput$sims.list$loglik
-  loglik[[3]] <- copas.log.p$BUGSoutput$sims.list$loglik
-  
-  r_eff <- lapply(loglik, function(x){
-    relative_eff(exp(x), chain_id = rep(1:3, each = 1250)) # 3 chains, each with 1250 draws
-  })
-  
-  loo_list <- lapply(1:length(loglik), function(j){
-    loo(loglik[[j]], r_eff = r_eff[[j]], k_threshold = 0.7)
-  })
-  
-  weights[j,] <- loo_model_weights(loo_list, method = 'stacking', r_eff_list = r_eff)
-  
-  num.sims <- round(weights[j,] * 3750)
-  sims <- list()
-  
-  sims[[1]] <- sample(copas.mav$BUGSoutput$sims.list$theta0, unlist(num.sims)[1], replace = FALSE)
-  sims[[2]] <- sample(copas.bai$BUGSoutput$sims.list$theta0, unlist(num.sims)[2], replace = FALSE)
-  # sims[[3]] <- sample(copas.sqrt.p$BUGSoutput$sims.list$theta0, num.sims[3], replace = FALSE)
-  sims[[3]] <- sample(copas.log.p$BUGSoutput$sims.list$theta0, unlist(num.sims)[3], replace = FALSE)
-  sims <- unlist(sims)
-  # summary
-  stacked.summary[j, ] <- summary.func(sims)
-  
-  if(j > 100){
-    rm(sims, loo_list, r_eff, loglik)
-    gc()
-  }
-}
+            cover = sum(ci.lower < 0.4 & ci.upper > 0.4),
+            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
+            rmse = sqrt(mean((as.numeric(est.mean) - 0.4)^2)))
 
-params <- list(theta0, tau, gamma0.true, gamma1.true, rho)
-names(params) <- c("theta0", "tau", "gamma0", "gamma1", "rho")
-copas.sim.full <- list(stacked.summary, model.sums, weights, params)
-names(copas.sim.full) <- c("stacked", "models", "weights", "params")
-saveRDS(copas.sim.full, here("R", "Results", "copas.sim.full.rds"))
-
-weights <- matrix(nrow = M, ncol = 3)
-stacked.summary <- matrix(nrow = M, ncol = 4)
-each.model.mean <- matrix(nrow = M, ncol = 3)
-data.summary <- matrix(nrow = M, ncol = 5)
-funnel.plots <- list()
-saveRDS()
 
 
 

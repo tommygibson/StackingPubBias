@@ -10,8 +10,10 @@ model
     var.y[i] = tau2 + s2[i]
     
     s2[i] = s[i] ^ 2
+    loglik[i] <- log(dnorm(y[i], theta0, 1 / (tau2 + s2[i])))
   }
   theta0 ~ dnorm(0, 0.01)
   tau2 = tau ^ 2
   tau ~ dt(0, 1, 1) T(0,)
+  
 }
