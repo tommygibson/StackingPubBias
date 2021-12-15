@@ -1,5 +1,6 @@
-####### First stacking simulation
+####### Third stacking simulation
 ## selection function is just by p-values
+## sample size is 100
 
 library(rstan)
 library(R2jags)
@@ -23,12 +24,12 @@ propensity.func.2 <- function(p){
   return(p.prop)
 }
 
-set.seed(1212)
+set.seed(1214)
 
 theta0 <- 0.4
 tau <- 0.2
 
-S <- 30
+S <- 100
 M <- 1000
 
 weights <- matrix(nrow = M, ncol = 5) # weight for each model (mav, bai, 1-step, 2-step, 3-step)
@@ -59,7 +60,7 @@ for(j in 1:M){
   names(dat.full) <- c('y', 's', 'p')
   
   # observed studies
-
+  
   dat.full$propensity <- with(dat.full,
                               propensity.func.1(p))
   dat.full$select <- NA
@@ -80,7 +81,7 @@ for(j in 1:M){
   if(j <= 10) {
     # save a few funnel plots
     funnel.plots[[j]] <- ggplot(dat.full, aes(x = y, y = s, color = (select == 1))) +
-    geom_point()
+      geom_point()
   }
   
   # initial values
@@ -195,7 +196,7 @@ for(j in 1:M){
   })
   
   loo_list <- lapply(1:length(loglik), function(j){
-    loo(loglik[[j]], r_eff = r_eff[[j]])
+    loo(loglik[[j]], r_eff = r_eff[[j]], k_threshold = 0.7)
   })
   ### extract pareto_k values
   pareto_values <- vector(length = 5 * S.select)
@@ -233,13 +234,15 @@ gc()
 stacked.summary <- as.data.frame(stacked.summary)
 model.sums <- as.data.frame(model.sums)
 weights <- as.data.frame(weights)
+data.summary <- as.data.frame(data.summary)
 names(stacked.summary) <- c("est.mean", "sd", "ci.lower", "ci.upper")
 names(model.sums) <- c("model", "iteration", "est.mean", "sd", "ci.lower", "ci.upper")
 names(weights) <- c("mav", "bai", "one.step", "two.step", "three.step")
+names(data.summary) <- c("Num.studies", "mean.select", "mean.full", "sd.select", "sd.full")
 
-sim.results.1 <- list(stacked.summary, model.sums, weights, theta0, funnel.plots)
-names(sim.results.1) <- c("stacked", "models", "weights", "theta0", "funnel.plots")
-saveRDS(sim.results.1, file = here("R", "Results", "sim.results.1.rds"))
+sim.results.3 <- list(stacked.summary, model.sums, weights, theta0, funnel.plots)
+names(sim.results.3) <- c("stacked", "models", "weights", "theta0", "funnel.plots")
+saveRDS(sim.results.3, file = here("R", "Results", "sim.results.3.rds"))
 
 
 

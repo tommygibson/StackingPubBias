@@ -234,12 +234,14 @@ gc()
 stacked.summary <- as.data.frame(stacked.summary)
 model.sums <- as.data.frame(model.sums)
 weights <- as.data.frame(weights)
+data.summary <- as.data.frame(data.summary)
 names(stacked.summary) <- c("est.mean", "sd", "ci.lower", "ci.upper")
 names(model.sums) <- c("model", "iteration", "est.mean", "sd", "ci.lower", "ci.upper")
 names(weights) <- c("mav", "bai", "one.step", "two.step", "three.step")
+names(data.summary) <- c("Num.studies", "mean.select", "mean.full", "sd.select", "sd.full")
 
-sim.results.2 <- list(stacked.summary, model.sums, weights, theta0, funnel.plots)
-names(sim.results.2) <- c("stacked", "models", "weights", "theta0", "funnel.plots")
+sim.results.2 <- list(stacked.summary, model.sums, weights, theta0, data.summary, funnel.plots)
+names(sim.results.2) <- c("stacked", "models", "weights", "theta0", "data.summary", "funnel.plots")
 saveRDS(sim.results.2, file = here("R", "Results", "sim.results.2.rds"))
 
 
