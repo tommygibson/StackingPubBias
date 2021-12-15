@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  14 DEC 2021 09:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  14 DEC 2021 15:16
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -410,33 +410,39 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 {/usr/local/texlive/2016/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3]
  [4] [5]
-[6] [7] [8] [9] [10]
+[6] [7] [8] [9]
 
-LaTeX Warning: Reference `eq:copas_y' on page 11 undefined on input line 199.
+LaTeX Warning: Reference `eq:copas_y' on page 10 undefined on input line 199.
 
 
-LaTeX Warning: Reference `eq:copas_theta' on page 11 undefined on input line 19
+LaTeX Warning: Reference `eq:copas_theta' on page 10 undefined on input line 19
 9.
 
 LaTeX Font Info:    Try loading font information for U+bbm on input line 211.
 (/usr/local/texlive/2016/texmf-dist/tex/latex/bbm-macros/ubbm.fd
 File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
-) [11]
+) [10]
+
+LaTeX Warning: Reference `baigamma' on page 11 undefined on input line 226.
+
+
+LaTeX Warning: Reference `mavgamma' on page 11 undefined on input line 226.
+
+[11] [12]
 \openout4 = `StackingPubBias.ttt'.
 
-
-(StackingPubBias.ttt) (./StackingPubBias.bbl [12] [13] [14] [15])
-AED endfloat: Processing end Figures and Tables [16] (./StackingPubBias.lot)
+ (StackingPubBias.ttt) (./StackingPubBias.bbl [13] [14] [15] [16])
+AED endfloat: Processing end Figures and Tables [17] (./StackingPubBias.lot)
 \tf@lot=\write5
 \openout5 = `StackingPubBias.lot'.
 
 
-[17
+[18
 
 
-] (./StackingPubBias.ttt [18
+] (./StackingPubBias.ttt [19
 
-] [19
+] [20
 
 ]) (./StackingPubBias.aux)
 
@@ -444,10 +450,10 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 5876 strings out of 493014
- 84971 string characters out of 6133351
- 168364 words of memory out of 5000000
- 9293 multiletter control sequences out of 15000+600000
+ 5878 strings out of 493014
+ 84991 string characters out of 6133351
+ 166364 words of memory out of 5000000
+ 9295 multiletter control sequences out of 15000+600000
  16252 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,19n,40p,1725b,315s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -465,10 +471,10 @@ local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loc
 al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
 l/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/
 texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on StackingPubBias.pdf (19 pages, 192523 bytes).
+Output written on StackingPubBias.pdf (20 pages, 193737 bytes).
 PDF statistics:
- 123 PDF objects out of 1000 (max. 8388607)
- 87 compressed objects within 1 object stream
+ 126 PDF objects out of 1000 (max. 8388607)
+ 89 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

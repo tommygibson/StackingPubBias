@@ -194,9 +194,9 @@ Implementation of Bayesian stacking can be done using the R package `loo'.
 
 \subsection{Stacking selection models for publication bias} \label{sec:stacked_models}
 
-It would be naive to think that either the stepped selection functions in Section \ref{sec:pvalue} or the Copas models in Section \ref{sec:copas} represent the true data generating mechanism for publication bias. As Bayesian stacking is designed to perform well in the event that our model list does not contain the true model, we propose stacking over a variety of stepped selection functions and Copas models to obtain a more robust posterior distribution for the mean parameter $\theta$. We fit both Bayesian Copas selection models \citep{mavridis2013copas, bai2020} and a set of stepped selection models with varying numbers of steps. As a default, we use a 1-step function with the step at $p=0.05$, a two-step function with steps at $p = (0.05, 0.10)$, and a three-step function with steps $p = (0.05, 0.10, 0.20)$. 
+It would be naive to think that either the stepped selection functions in Section \ref{sec:pvalue} or the Copas models in Section \ref{sec:copas} represent the true data generating mechanism for publication bias. As Bayesian stacking is designed to perform well in the event that our model list does not contain the true model, we propose stacking over both Copas models  \citep{mavridis2013copas, bai2020} and a variety of stepped selection functions to obtain a more robust posterior distribution for the mean parameter $\theta$. 
 
-We fit the Copas models in JAGS \citep{plummer2003jags} as there is a straightforward Gibbs sampling routine. Writing model \eqref{eq:copas_y} - \eqref{eq:copas_theta} as 
+To fit the Copas models we rewrite model \eqref{eq:copas_y} - \eqref{eq:copas_theta} as 
 \begin{align}
 \begin{pmatrix}
 y_i \\
@@ -207,9 +207,9 @@ u_i
 \end{pmatrix},\begin{pmatrix}
 \tau^2 + s_i^2 & \rho s_i \\
 \rho s_i & 1
-\end{pmatrix}\right) \mathbbm{1}_{z_i > 0} \label{eq:copas_rewrite}
+\end{pmatrix}\right) \mathbbm{1}_{z_i > 0}, \label{eq:copas_rewrite}
 \end{align}
-we see that we can first sample $z_i$ from a truncated normal $z_i \sim \text{N}(u_i, 1) \mathbbm{1}_{z_i > 0}$, and then sample $y_i \vert z_i \sim \text{N}\big(\text{E}[y_i \vert z_i], \text{Var}[y_i \vert z_i]\big)$ where $\text{E}[y_i \vert z_i] = \theta + \rho s_i (z_i - u_i)$ and $\text{Var}[y_i \vert z_i] = \tau^2 + s_i^2 (1 - \rho ^ 2)$. We also need to extract the log-likelihood for each observation $(y_i, s_i)$ in order to stack models. The model construction \eqref{eq:copas_rewrite} leads to a simple form for the log-likelihood 
+which shows that we can first sample $z_i$ from a truncated normal $z_i \sim \text{N}(u_i, 1) \mathbbm{1}_{z_i > 0}$, and then sample $y_i \vert z_i \sim \text{N}\big(\text{E}[y_i \vert z_i], \text{Var}[y_i \vert z_i]\big)$ where $\text{E}[y_i \vert z_i] = \theta + \rho s_i (z_i - u_i)$ and $\text{Var}[y_i \vert z_i] = \tau^2 + s_i^2 (1 - \rho ^ 2)$ \citep{mavridis2013copas}. We also need to extract the log-likelihood for each observation $i$ in order to stack models. The model construction \eqref{eq:copas_rewrite} leads to a simple form for the log-likelihood 
 \begin{align}
 \begin{split}
 L(\theta, \tau^2, \rho, \gamma_0, \gamma_1) &= \sum_{i = 1} ^ S \log[p(y_i \vert z_i > 0, s_i)] \\
@@ -223,7 +223,16 @@ u_i &= \gamma_0 + \frac{\gamma_1}{s_i} \nonumber \\
 v_i &= \frac{u_i + \tilde{\rho}_i \frac{y_i - \theta}{\sqrt{\tau^2 + s_i^2}}}{\sqrt{(1 - \tilde{\rho}_i^2)}} \nonumber \\
 \tilde{\rho_i} &= \frac{s_i}{(\tau^2 + s_i^2)^{1/2}} \rho. \nonumber
 \end{align}
-We fit the stepped selection models in Stan \citep{gelman2015stan} because of the ability to easily code the custom probability distribution \eqref{eq:weightednormal}. 
+While \citet{bai2020} use default prior distributions \eqref{baigamma} for the parameters $\gamma_0$ and $\gamma_1$, \citet{mavridis2013copas} instead advise users to use expert elicitation or historical data to specify $(L_1, L_2)$ and $(U_1, U_2)$ in \eqref{mavgamma}. To avoid this, we specify $(L_1, L_2) = (0.01, 0.5)$ and $(U_1, U_2) = (0.5, 0.99)$, meaning we believe the lower bound for publication probability is between 1-50\%, and the upper bound is between 50-99\%. \citet{mavridis2013copas} gives $\tau$ a half-normal prior, while \citet{bai2020} uses a half-Cauchy prior 
+\begin{align}
+\begin{split}
+\tau & \sim \text{N}(0, 10^2) \mathbbm{1}_{\tau > 0} \\
+\tau & \sim \text{Cauchy}(0, 1) \mathbbm{1}_{\tau > 0}.
+\end{split}
+\end{align}
+We fit Copas models in JAGS \citep{plummer2003jags}.
+
+As a default, we fit a 1-step model with the step at $p=0.05$, a two-step model with steps at $p = (0.01, 0.10)$, and a two-step model with steps $p = (0.05, 0.20)$. We fit the stepped selection models in Stan \citep{gelman2015stan} because of the ability to easily code the custom probability distribution \eqref{eq:weightednormal}, which also makes extraction of the log-likelihood matrix simple. 
 
 \section{Simulation} \label{sec:simulation}
 
