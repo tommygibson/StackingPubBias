@@ -1,15 +1,12 @@
-### Copas model with selection on log(p-value)
+### Bai Copas model with likelihood calculation
 
 data
 {
   for(i in 1:S){
     s2[i] = s[i] ^ 2
-    p.val[i] = min(2 * (pnorm(-y[i] / s[i], 0, 1)), 1)
-    log.p.val[i] = log(p.val[i])
   }
 
-  log.p.max = max(-log.p.val)
-  
+  s.max = max(s)
 }
 
 model
@@ -22,9 +19,9 @@ model
     prec.y[i] = 1 / var.y[i]
     var.y[i] = tau2 + s2[i] * (1 - (rho ^ 2))
     
-    u[i] = gamma0 - gamma1 * log.p.val[i]
+    u[i] = gamma0 + gamma1 / s[i]
     
-    # for calculating log-likelihood
+    # calculating log-likelihood
     rho_bar[i] = rho * s[i] / sqrt(tau2 + s2[i])
     v[i] = (u[i] + rho_bar[i] * (y[i] - theta0) / sqrt(tau2 + s2[i])) / sqrt(1 - rho_bar[i] ^ 2)
     loglik[i] = log(pnorm(v[i], 0, 1)) + log(dnorm(y[i], theta0, 1 / (tau2 + s2[i]))) - log(pnorm(u[i], 0, 1))
@@ -32,13 +29,23 @@ model
   }
   
   gamma0 ~ dunif(-2, 2)
-  gamma1 ~ dunif(0, 1 / log.p.max)
+  gamma1 ~ dunif(0, s.max)
   
   theta0 ~ dnorm(0, 0.01)
   
+  # tau prior is specified in Bai 2020
   tau ~ dt(0, 1, 1) T(0,)
   tau2 = tau ^ 2
   rho ~ dunif(-1, 1)
 
+
+  ### calculate log-likelihood for held-out observations
+  for(i in 1:H){
+    s2_h[i] = s_h[i]^2
+    u_h[i] = gamma0 + gamma1 / s_h[i]
+    rho_bar_h[i] = rho * s_h[i] / sqrt(tau2 + s2_h[i])
+    v_h[i] = (u[i] + rho_bar[i] * (y_h[i] - theta0) / sqrt(tau2 + s2_h[i])) / sqrt(1 - rho_bar_h[i] ^ 2)
+    loglik_h[i] = log(pnorm(v_h[i], 0, 1)) + log(dnorm(y_h[i], theta0, 1 / (tau2 + s2_h[i]))) - log(pnorm(u_h[i], 0, 1))
+  }
   
 }
