@@ -25,22 +25,22 @@ mav.dat <- list(S = S,
                 s = s,
                 L1 = 0.35, L2 = 0.45,
                 U1 = 0.75, U2 = 0.85)
-mav.dat.diff <- list(S = S,
-                     y = y,
-                     s = s,
-                     L1 = 0.3, L2 = 0.99,
-                     U2 = 1)
-init.gen.bai <- function(){
-  list(
-    z = runif(S, 0, 1),
-    theta = rnorm(S, 0, 0.25),
-    theta0 = rnorm(1, 0, 0.25),
-    rho = runif(1, -0.5, 0.5),
-    tau = runif(1, 0.1, 0.5),
-    gamma0 = runif(1, -1, 1),
-    gamma1 = runif(1, 0, max(s))
-  )
-}
+step1.dat <- list(S = S,
+                  y = y,
+                  s = s,
+                  steps = array(c(.05), dim = 1),
+                  M = 1)
+step2.dat <- list(S = S,
+                  y = y,
+                  s = s,
+                  steps = c(.1, .01),
+                  M = 2)
+step2.dat.2 <- list(S = S,
+                    y = y,
+                    s = s,
+                    steps = c(.2, .05),
+                    M = 2)
+
 init.gen.bai.adj <- function(){
   list(
     z = runif(S, 0, 1),
@@ -51,17 +51,7 @@ init.gen.bai.adj <- function(){
     gamma1 = runif(1, 0, max(s))
   )
 }
-init.gen.mav <- function(){
-  list(
-    z = runif(S, 0, 1),
-    theta = rnorm(S, 0, 0.25),
-    theta0 = rnorm(1, 0, 0.25),
-    rho = runif(1, -0.5, 0.5),
-    tau = runif(1, 0.1, 0.5),
-    p.low = runif(1, 0.38, 0.42),
-    p.high = runif(1, 0.78, 0.82)
-  )
-}
+
 init.gen.mav.adj <- function(){
   list(
     z = runif(S, 0, 1),
@@ -72,27 +62,7 @@ init.gen.mav.adj <- function(){
     p.high = runif(1, 0.78, 0.82)
   )
 }
-init.gen.logp <- function(){
-  list(
-    z = runif(S, 0, 1),
-    theta0 = rnorm(1, 0, 0.25),
-    rho = runif(1, -0.5, 0.5),
-    tau = runif(1, 0.1, 0.5),
-    gamma0 = runif(1, -1, 1),
-    gamma1 = runif(1, 0, 0.05)
-  )
-}
-init.gen.intp <- function(){
-  list(
-    z = runif(S, 0, 1),
-    theta0 = rnorm(1, 0, 0.25),
-    rho = runif(1, -0.5, 0.5),
-    tau = runif(1, 0.1, 0.5),
-    gamma0 = runif(1, -1, 1),
-    gamma1 = runif(1, -0.5, 0.5),
-    gamma2 = runif(1, -0.5, 0.5)
-  )
-}
+
 init.gen.std <- function(){
   list(
     theta0 = rnorm(1, 0, 0.25),
@@ -109,56 +79,84 @@ fit.std <- jags(data = std.dat, parameters.to.save = std.params, inits = init.ge
                 model.file = here("R", "std.meta.txt"), n.chains = 2, n.iter = 5000, DIC = FALSE)
 mav.params <- c("theta0", "rho", "tau", "gamma0", "gamma1")
 bai.params <- c("theta0", "rho", "tau", "gamma0", 'gamma1')
-intp.params <- c("theta0", "rho", "tau", "gamma0", "gamma1", "gamma2")
-copas.mav <- jags(data = mav.dat, inits = init.gen.mav, parameters.to.save = mav.params,
-                  model.file = here("R", "copas.jags.mavridis.txt"),
-                  n.iter = 10000, n.thin = 4, n.chains = 4)
+
 copas.mav.adj <- jags(data = mav.dat, inits = init.gen.mav.adj, parameters.to.save = mav.params,
                       model.file = here("R", "copas.jags.mavridis.adj.txt"),
-                      n.iter = 10000, n.thin = 4, n.chains = 4)
-copas.mav.diff <- jags(data = mav.dat.diff, inits = init.gen.mav.adj, parameters.to.save = mav.params,
-                       model.file = here("R", "mavridis.diff.prior.txt"),
-                       n.iter = 10000, n.thin = 4, n.chains = 4)
+                      n.iter = 10000, n.chains = 4)
 
-copas.bai <- jags(data = bai.dat, inits = init.gen.bai, parameters.to.save = bai.params,
-                  model.file = here("R", "copas.jags.bai.txt"),
-                  n.iter = 10000, n.thin = 2, n.chains = 4)
 copas.bai.adj <- jags(data = bai.dat, inits = init.gen.bai.adj, parameters.to.save = bai.params,
                       model.file = here("R", "copas.jags.bai.adj.txt"),
-                      n.iter = 100000, n.thin = 2, n.chains = 4)
+                      n.iter = 10000, n.chains = 4)
 stack.params <- c('theta0', 'loglik')
 
 copas.mav.stack <- jags(data = mav.dat, inits = init.gen.mav.adj, parameters.to.save = stack.params,
-                        model.file = here("R", "copas.jags.mavridis.adj.txt"),
-                        n.iter = 5000, n.thin = 2, n.chains = 4, DIC = FALSE)
+                        model.file = here("R", "Models", "copas.jags.mavridis.adj.txt"),
+                        n.iter = 2000, n.chains = 4, DIC = FALSE)
 copas.bai.stack <- jags(data = bai.dat, inits = init.gen.bai.adj, parameters.to.save = stack.params,
-                        model.file = here("R", "copas.jags.bai.adj.txt"),
-                        n.iter = 5000, n.thin = 2, n.chains = 4, DIC = FALSE)
+                        model.file = here("R", "Models", "copas.jags.bai.adj.txt"),
+                        n.iter = 2000, n.chains = 4, DIC = FALSE)
+bai.stan <- stan(file = here("R", "bai.2.stan"), data = bai.dat,
+                 iter = 10000, thin = 2, chains = 4)
+
+step1 <- stan(file = here("R", "Models", "stepfunc.stan"), data = step1.dat,
+                    iter = 2000, chains = 4)
+step2.1 <- stan(file = here("R", "Models", "stepfunc.stan"), data = step2.dat,
+                    iter = 2000, chains = 4)
+step2.2 <- stan(file = here("R", "Models", "stepfunc.stan"), data = step2.dat.2,
+                    iter = 2000, chains = 4)
 
 
 
-mav.bai.loglik <- list()
-mav.bai.loglik[[1]] <- copas.mav.stack$BUGSoutput$sims.list$loglik
-mav.bai.loglik[[2]] <- copas.bai.stack$BUGSoutput$sims.list$loglik
-mav.bai.loglik[[3]] <- copas.log.p$BUGSoutput$sims.list$loglik
 
-r_eff_mav_bai <- lapply(mav.bai.loglik, function(x){
-  relative_eff(exp(x), chain_id = rep(1:4, each = 1250))
+loglik_list <- list()
+loglik_list[[1]] <- copas.mav.stack$BUGSoutput$sims.list$loglik
+loglik_list[[2]] <- copas.bai.stack$BUGSoutput$sims.list$loglik
+loglik_list[[3]] <- extract_log_lik(step1, parameter_name = "loglik")
+loglik_list[[4]] <- extract_log_lik(step2.1, parameter_name = "loglik")
+loglik_list[[5]] <- extract_log_lik(step2.2, parameter_name = "loglik")
+r_eff_list <- lapply(loglik_list, function(x){
+  relative_eff(exp(x), chain_id = rep(1:4, each = 1000))
 })
 
-loo_list_mav_bai <- lapply(1:length(mav.bai.loglik), function(j){
-  loo(mav.bai.loglik[[j]], r_eff = r_eff_mav_bai[[j]], k_threshold = 0.7)
+loo_list <- lapply(1:length(loglik_list), function(j){
+  loo(loglik_list[[j]], r_eff = r_eff_list[[j]])
 })
 
-mav.bai.weights <- loo_model_weights(loo_list_mav_bai, method = 'stacking', r_eff_list = r_eff_mav_bai)
+S <- 49
+H <- 1
+y_h <- anti.select$Standardized_effect_size[18]
+s_h <- anti.select$Standardized_SE[18]
+y <- anti.select$Standardized_effect_size[-18]#big_k_indices[[m]][i]]
+s <- anti.select$Standardized_SE[-18]#big_k_indices[[m]][i]]
+
+## different data structure, inits, etc for each model (ugh)
+
+  dat.loo <- list(S = S, H = H,
+                  y = y, y_h = y_h,
+                  s = s, s_h = s_h,
+                  L1 = 0, L2 = 0.5,
+                  U1 = 0.5, U2 = 1)
+  init.gen.loo <- function(){
+    list(
+      z = runif(S, 0, 1),
+      theta0 = rnorm(1, 0, 0.25),
+      rho = runif(1, -0.5, 0.5),
+      tau = runif(1, 0.1, 0.5),
+      p.low = runif(1, 0.38, 0.42),
+      p.high = runif(1, 0.78, 0.82)
+    )
+  }
+  
+  params.loo <- c("loglik_h")
+  fit.loo <- do.call(jags.parallel,
+                     list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
+                          model.file = here("R", "copas.mav.loo.txt"),
+                          n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
+  
+  
 
 
-copas.sqrt.p <- jags(data = bai.dat, inits = init.gen.bai.adj, parameters.to.save = bai.params,
-                     model.file = here('R', 'copas.pval.sqrt.txt'),
-                     n.iter = 10000, n.thin = 4, n.chains = 4, DIC = FALSE)
-copas.log.p <- jags(data = bai.dat, inits = init.gen.logp, parameters.to.save = bai.params,
-                     model.file = here('R', 'copas.pval.log.txt'),
-                     n.iter = 10000, n.thin = 4, n.chains = 4, DIC = FALSE)
+antidep.weights <- loo_model_weights(loo_list, method = 'stacking', r_eff_list = r_eff_list)
 
 plot(s ~ y)
 
@@ -212,6 +210,8 @@ r_eff <- lapply(loglik, function(x){
 loo_list <- lapply(1:length(loglik), function(j) {
   loo(loglik[[j]], r_eff = r_eff[[j]], k_threshold = 0.7)
 })
+
+
 
 weights <- loo_model_weights(loo_list, method = "stacking", r_eff_list = r_eff)
 

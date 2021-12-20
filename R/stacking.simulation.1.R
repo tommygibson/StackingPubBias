@@ -31,7 +31,7 @@ theta0 <- 0.4
 tau <- 0.2
 
 S.full <- 30
-M <- 5
+M <- 1000
 
 weights <- matrix(nrow = M, ncol = 5) # weight for each model (mav, bai, 1-step, 2-step, 3-step)
 stacked.summary <- matrix(nrow = M, ncol = 4) # mean, sd, 2.5, 97.5
@@ -40,6 +40,7 @@ data.summary <- matrix(nrow = M, ncol = 5) # num. studies, mean.select, mean.ful
 funnel.plots <- list()
 seeds <- list()
 big_k <- matrix(nrow = M, ncol = 5)
+
 
 for(j in 1:M){
   
@@ -77,6 +78,11 @@ for(j in 1:M){
   y <- dat.select$y
   s <- dat.select$s
   p <- dat.select$p
+  
+  L1 <- 0
+  L2 <- 0.5
+  U1 <- 0.5
+  U2 <- 1
   
   # summarize selected data and full data
   data.summary[j,] <- c(S, mean(dat.select$y), mean(dat.full$y), mean(dat.select$s), mean(dat.full$s))
@@ -129,8 +135,8 @@ for(j in 1:M){
   mav.dat <- list(S = S,
                   y = y,
                   s = s,
-                  L1 = 0, L2 = 0.5,
-                  U1 = 0.5, U2 = 1)
+                  L1 = L1, L2 = L2,
+                  U1 = U1, U2 = U2)
   step1.dat <- list(S = S,
                     y = y,
                     s = s,
@@ -166,11 +172,11 @@ for(j in 1:M){
   #                   iter = 5000, warmup = 3000)
   
   step.1 <- stan(file = here("R", "Models", "stepfunc.stan"), data = step1.dat,
-                 iter = 2000, chains = 4)
+                 iter = 2000, chains = 4, cores = 1)
   step.2 <- stan(file = here("R", "Models", "stepfunc.stan"), data = step2.dat,
-                 iter = 2000, chains = 4)
+                 iter = 2000, chains = 4, cores = 1)
   step.3 <- stan(file = here("R", "Models", "stepfunc.stan"), data = step2.dat.2,
-                 iter = 2000, chains = 4)
+                 iter = 2000, chains = 4, cores = 1)
   
   model.sums[(6 * j - 5):(6 * j),] <- cbind(c("std", "Mavridis", "Bai", "one.step", "two.step", "three.step"),
                                             rep(j, 6),
@@ -184,8 +190,6 @@ for(j in 1:M){
   loglik <- list()
   loglik[[1]] <- copas.mav$BUGSoutput$sims.list$loglik
   loglik[[2]] <- copas.bai$BUGSoutput$sims.list$loglik
-  # loglik[[1]] <- extract_log_lik(copas.mav, parameter_name = "log_lik")
-  # loglik[[2]] <- extract_log_lik(copas.bai, parameter_name = "log_lik")
   loglik[[3]] <- extract_log_lik(step.1, parameter_name = "loglik")
   loglik[[4]] <- extract_log_lik(step.2, parameter_name = "loglik")
   loglik[[5]] <- extract_log_lik(step.3, parameter_name = "loglik")
@@ -237,8 +241,8 @@ for(j in 1:M){
             dat.loo <- list(S = S, H = H,
                             y = y, y_h = y_h,
                             s = s, s_h = s_h,
-                            L1 = 0, L2 = 0.5,
-                            U1 = 0.5, U2 = 1)
+                            L1 = L1, L2 = L2,
+                            U1 = U1, U2 = U2)
             init.gen.loo <- function(){
               list(
                 z = runif(S, 0, 1),
@@ -251,11 +255,18 @@ for(j in 1:M){
             }
             
             params.loo <- c("loglik_h")
+            ### Getting weird errors using jags.parallel
             fit.loo <- do.call(jags.parallel,
                                list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
                                     model.file = here("R", "Models", "copas.mav.loo.txt"),
                                     n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
-            elpd_holdout <- elpd(fit.loo$BUGSoutput$sims.array)$estimates[1]
+            # fit.loo <- jags(data = dat.loo, inits = init.gen.loo, parameters.to.save = params.loo,
+            #                 model.file = here("R", "Models", "copas.mav.loo.txt"),
+            #                 n.iter = 5000, n.chains = 4, n.burnin = 4000, DIC = FALSE)
+            
+            # occasionally jags can't handle the log-likelihood of real bad observations
+            # extract the regular likelihood instead, log it afterwards, seems to work
+            elpd_holdout <- elpd(log(fit.loo$BUGSoutput$sims.array))$estimates[1]
             
             lpds[big_k_indices[[m]][i], m] <- elpd_holdout
           }
@@ -279,18 +290,24 @@ for(j in 1:M){
                                list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
                                     model.file = here("R", "Models", "copas.bai.loo.txt"),
                                     n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
-            elpd_holdout <- elpd(fit.loo$BUGSoutput$sims.array)$estimates[1]
+            # fit.loo <- jags(data = dat.loo, inits = init.gen.loo, parameters.to.save = params.loo,
+            #                 model.file = here("R", "Models", "copas.bai.loo.txt"),
+            #                 n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE)
+            
+            # occasionally jags can't handle the log-likelihood of real bad observations
+            # extract the regular likelihood instead, log it afterwards, seems to work
+            elpd_holdout <- elpd(log(fit.loo$BUGSoutput$sims.array))$estimates[1]
             
             lpds[big_k_indices[[m]][i], m] <- elpd_holdout  
           }
           else if(m == 3){
             dat.loo <- list(S = S, H = H,
-                            y = y, y_h = y_h,
-                            s = s, s_h = s_h,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
                             steps = array(c(.05), dim = 1),
                             M = 1)
             fit.loo <- stan(file = here("R", "Models", "stepfunc_loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+                            iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -298,12 +315,12 @@ for(j in 1:M){
           }
           else if(m == 4){
             dat.loo <- list(S = S, H = H,
-                            y = y, y_h = y_h,
-                            s = s, s_h = s_h,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
                             steps = c(0.01, 0.10),
                             M = 2)
             fit.loo <- stan(file = here("R", "Models", "stepfunc_loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+                            iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -311,12 +328,12 @@ for(j in 1:M){
           }
           else if(m == 5){
             dat.loo <- list(S = S, H = H,
-                            y = y, y_h = y_h,
-                            s = s, s_h = s_h,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
                             steps = c(0.05, 0.20),
                             M = 2)
             fit.loo <- stan(file = here("R", "Models", "stepfunc_loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+                            iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -332,10 +349,10 @@ for(j in 1:M){
     weights[j,] <- stacking_weights(lpds)
   }
   
-  num.sims <- round(weights[j,] * 4000)
+  num.sims <- round(unlist(weights[j,]) * 4000)
   sims <- list()
   
-  sims[[1]] <- sample(copas.mav$BUGSoutput$sims.list$theta0, num.sims[1], replace = TRUE)
+  sims[[1]] <- sample(copas.mav$BUGSoutput$sims.list$theta0, size = num.sims[1], replace = TRUE)
   sims[[2]] <- sample(copas.bai$BUGSoutput$sims.list$theta0, num.sims[2], replace = TRUE)
   sims[[3]] <- sample(rstan::extract(step.1)$theta, num.sims[3], replace = TRUE)
   sims[[4]] <- sample(rstan::extract(step.2)$theta, num.sims[4], replace = TRUE)
@@ -357,12 +374,14 @@ gc()
 stacked.summary <- as.data.frame(stacked.summary)
 model.sums <- as.data.frame(model.sums)
 weights <- as.data.frame(weights)
+data.summary <- as.data.frame(data.summary)
 names(stacked.summary) <- c("est.mean", "sd", "ci.lower", "ci.upper")
 names(model.sums) <- c("model", "iteration", "est.mean", "sd", "ci.lower", "ci.upper")
 names(weights) <- c("mav", "bai", "one.step", "two.step", "three.step")
+names(data.summary) <- c("num.studies", "mean.select", "avg.sd.select", "mean.full", "avg.sd.full")
 
-sim.results.1 <- list(stacked.summary, model.sums, weights, theta0, funnel.plots)
-names(sim.results.1) <- c("stacked", "models", "weights", "theta0", "funnel.plots")
+sim.results.1 <- list(stacked.summary, model.sums, weights, theta0, data.summary, funnel.plots)
+names(sim.results.1) <- c("stacked", "models", "weights", "theta0", "data.summary", "funnel.plots")
 saveRDS(sim.results.1, file = here("R", "Results", "sim.results.1.rds"))
 
 
