@@ -124,8 +124,8 @@ model {
 
 // We only calculate loglik for holdouts here
 generated quantities {
-  vector[S] loglik;
+  vector[H] loglik_h;
   for(i in 1:H){
-    loglik_h[i] = weightednormal_lpdf(y_h[i] | s_h[i], p[i], theta, tau, omega, steps);
+    loglik_h[i] = weightednormal_lpdf(y_h[i] | s_h[i], p_h[i], theta, tau, omega, steps1);
   }
 }

@@ -111,6 +111,6 @@ model {
 generated quantities {
   vector[S] loglik;
   for(i in 1:S){
-    loglik[i] = weightednormal_lpdf(y[i] | s[i], p[i], theta, tau, omega, steps);
+    loglik[i] = weightednormal_lpdf(y[i] | s[i], p[i], theta, tau, omega, steps1);
   }
 }
