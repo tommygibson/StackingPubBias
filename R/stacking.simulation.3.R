@@ -384,7 +384,7 @@ names(data.summary) <- c("Num.studies", "mean.select", "mean.full", "sd.select",
 names(big_k) <- names(weights)
 
 sim.results.3 <- list(stacked.summary, model.sums, weights, theta0, data.summary, funnel.plots, big_k)
-names(sim.results.3) <- c("stacked", "models", "weights", "theta0", "funnel.plots")
+names(sim.results.3) <- c("stacked", "models", "weights", "theta0", "data.summary", "funnel.plots", "big.k")
 saveRDS(sim.results.3, file = here("R", "Results", "sim.results.3.rds"))
 
 

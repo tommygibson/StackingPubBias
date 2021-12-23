@@ -1,6 +1,6 @@
-####### First stacking simulation
-## selection function is just by p-values
-## sample size is 60
+####### Fourth stacking simulation
+## selection function is "moderate"
+## same general form as simulations 1-3
 
 library(rstan)
 library(R2jags)
@@ -8,30 +8,24 @@ library(here)
 library(tidyverse)
 library(loo)
 
-options(mc.cores = parallel::detectCores())
+options(mc.cores = 4) # we have 8 cores available but running 4 chains
 
 summary.func <- function(x){
   c(mean(x), sd(x), quantile(x, c(.025, .975)))
 }
-propensity.func.1 <- function(p){
-  p.prop <- ifelse(p < 0.005, 1, 
-                   ifelse(p < 0.2, exp(-2 * p), 
-                          ifelse(p < 0.5, exp(-4 * p), .1)))
-  
-  return(p.prop)
-}
 propensity.func.2 <- function(p){
-  p.prop <- ifelse(p < 0.5, 1, 0.3)
-  
+  p.prop <- ifelse(p < 0.005, 1,
+                   ifelse(p < 0.2, exp(-0.5 * p),
+                          ifelse(p < 0.5, exp(-1 * p), .5)))
   return(p.prop)
 }
 
-set.seed(1212)
+set.seed(1220)
 
 theta0 <- 0.4
 tau <- 0.2
 
-S.full <- 60
+S.full <- 20
 M <- 1000
 
 weights <- matrix(nrow = M, ncol = 5) # weight for each model (mav, bai, 1-step, 2-step, 3-step)
@@ -66,7 +60,7 @@ for(j in 1:M){
   # observed studies
   
   dat.full$propensity <- with(dat.full,
-                              propensity.func.1(p))
+                              propensity.func.2(p))
   dat.full$select <- NA
   for(k in 1:S.full){
     dat.full$select[k] <- rbinom(1, 1, dat.full$propensity[k]) # selection indicator
@@ -383,9 +377,9 @@ names(weights) <- c("mav", "bai", "one.step", "two.step", "three.step")
 names(data.summary) <- c("Num.studies", "mean.select", "mean.full", "sd.select", "sd.full")
 names(big_k) <- names(weights)
 
-sim.results.2 <- list(stacked.summary, model.sums, weights, theta0, data.summary, funnel.plots, big_k)
-names(sim.results.2) <- c("stacked", "models", "weights", "theta0", "data.summary", "funnel.plots", "big.k")
-saveRDS(sim.results.2, file = here("R", "Results", "sim.results.2.rds"))
+sim.results.4 <- list(stacked.summary, model.sums, weights, theta0, data.summary, funnel.plots, big_k)
+names(sim.results.4) <- c("stacked", "models", "weights", "theta0", "data.summary", "funnel.plots", "big.k")
+saveRDS(sim.results.4, file = here("R", "Results", "sim.results.4.rds"))
 
 
 
