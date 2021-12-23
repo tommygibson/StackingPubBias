@@ -180,17 +180,36 @@ Priors \eqref{eq:baigamma} are meant to be default prior distributions, while \e
 
 \subsection{Bayesian stacking} \label{sec:stacking}
 
-We use $\mathcal{M}$-open to refer to the setting in which our list of candidate models does not include the true data generating mechanism \citep{bernardo2009}. Bayesian stacking \citep{yao2018stacking} is an alternative to BMA that has superior performance in the $\mathcal{M}$-open setting. If we have $K$ candidate models, the goal is to find the set of optimal weights $w \in \mathcal{S}_1^K$, $\mathcal{S}_1^K = \{w \in [0,1]^K \: : \: \sum_{k = 1}^K w_k = 1\}$, that maximizes a score $S$ comparing weighted predictive distributions  $p_k(\tilde{y} \vert y, M_k)$ to the true distribution $p_t(\tilde{y} \vert y)$. Rather than requiring holdout data $\tilde{y}$ and \citet{yao2018stacking} replace $p(\tilde{y} \vert y)$ with observed values $y_i$ and replace $p(\tilde{y} \vert y, M_k)$ with its corresponding leave-one-out (LOO) predictive distribution $\hat{p}_{k, -i}(y_i) = \int p(Y_i \vert \theta_k, M_k) p(\theta_k \vert y_{-i}, M_k) d\theta_k$, where $M_k$ is model $k, k = 1, \dots, K$, and $\theta_k$ are the parameters in model $k$. The authors recommend the logarithmic scoring rule, which reduces the stacking problem to solving for weights $w$ in 
+We use $\mathcal{M}$-open to refer to the setting in which our list of candidate models does not include the true data generating mechanism \citep{bernardo2009}. Bayesian stacking \citep{yao2018stacking} is an alternative to Bayesian model averaging that has superior performance in the $\mathcal{M}$-open setting. If we have $K$ candidate models $M_k$ indexed by $k = 1, \dots, K$, the goal is to find the set of optimal weights $w \in \mathcal{S}_1^K$, $\mathcal{S}_1^K = \{w \in [0,1]^K \: : \: \sum_{k = 1}^K w_k = 1\}$, that maximizes a score $S$ comparing the predictive distributions  $p_k(\tilde{y} \vert y, M_k)$ to the true distribution $p_T(\tilde{y} \vert y)$. Formally, \citet{yao2018stacking} define the stacking problem as 
+\begin{equation}
+\underset{w \in \mathcal{S}_1^K}{\text{max}}\Big( \sum_{k=1}^K w_k p(\cdot \vert y, M_k) , p_T(\cdot \vert y) \Big) \label{eq:stacking_formal}
+\end{equation}
+where the first argument $P$ in $S(P, Q)$ is a weighted sum of model-specific posterior predictive distributions. Equation \eqref{eq:stacking_formal} is intractable as written, so \citet{yao2018stacking} replace the ``true" predictive distribution $p_T(\tilde{y} \vert y)$ with observed values $y_i$, and replace model $k$'s predictive distribution $p(\tilde{y} \vert y, M_k)$ with its corresponding leave-one-out (LOO) predictive distributions $\hat{p}_{k, -i}(y_i) = \int p(y_i \vert \theta_k, M_k) p(\theta_k \vert y_{-i}, M_k) d\theta_k$, where $\theta_k$ are the parameters in model $k$ and subscript $-i$ denotes the data $y$ with observation $i$ left out. The authors recommend the logarithmic scoring rule, which reduces the stacking problem to solving for weights $w$ with
 \begin{align}
-\underset{w \in \mathcal{S}_1^K}{\mbox{max}} \: \frac{1}{n} \sum_{i = 1}^n \log \sum_{k = 1}^K w_k p(y_i \vert y_{-i}, M_k)
+(\hat{w}_1, \dots, \hat{w}_K) = \underset{w \in \mathcal{S}_1^K}{\mbox{arg max}} \: \frac{1}{n} \sum_{i = 1}^n \log \sum_{k = 1}^K w_k \hat{p}_{k, -i}(y_i)
 \end{align}
-via optimization. Instead of refitting each model $n$ times to obtain LOO distributions ${p}_{k}(y_i \vert y_{-i} M_k)$, \citet{yao2018stacking} use Pareto smoothed importance sampling (PSIS) \citep{vehtari2017psis} to obtain approximations. 
+via optimization. After solving for stacking weights $\hat{w}$, the \textit{stacked posterior distribution} of a common parameter $\theta$ can be obtained by taking $\hat{w}_k \times T$ samples from each model $k$'s posterior distribution $p(\theta \vert y)$ for a total of $T$ posterior samples. 
 
-After stacking weights $w$ have been optimized, the stacked posterior distribution of $\theta$ can be obtained by taking $w_k \times T$ samples from each model $k$'s posterior distribution $p(\theta \vert y)$ for a total of $T$ posterior samples. 
+\subsubsection{Pareto smoothed importance sampling}
 
+It would be computationally costly to refit each model $n$ times to obtain LOO distributions $p_{k}(y_i \vert y_{-i}, M_k)$. Instead, \citet{yao2018stacking} use Pareto smoothed importance sampling (PSIS) \citep{vehtari2017psis} to obtain approximations. If we have draws $\theta_k^{(t)}$ from the full posterior $p(\theta_k \vert y, M_k)$, we can calculate importance ratios as
+\begin{align}
+r_{i,k}^{(t)} &= \frac{1}{p(y_i \vert \theta_k^{(t)}, M_k)} \propto \frac{p(\theta_k^{(t)} \vert y_{-i}, M_k)}{p(\theta_k^{(t)} \vert y, M_k)} \label{eq:imporance_ratio}
+\end{align}
+and use $r_{i,k}^{(t)}$ to generate model $k$'s importance sampling leave-one-out (IS-LOO) distribution 
+\begin{align}
+p_k(\tilde{y}_i \vert y_{-i}) &\approx \frac{\sum_{t = 1}^T r_{i, k}^{(t)} \: p(\tilde{y}_i \vert \theta_k^{(t)}, M_k)}{\sum_{t=1}^T r_{i, k}^{(t)}}, \label{eq:is_loo}
+ % &= \frac{1}{\frac{1}{T} \sum_{t=1}^T \frac{1}{p(y_i \vert \theta_k^{(t)}, M_k)}}. 
+\end{align}
+which we evaluate at the left out data point $y_i$ to obtain the IS-LOO predictive density $p_k(y_i \vert y_{-i})$. 
 
-Implementation of Bayesian stacking can be done using the R package `loo'. 
+This approximation may be unstable because the importance ratios $r_{i,k}^{(t)}$ can have high or infinite variance. \citet{vehtari2017psis} mitigate this issue by fitting a generalized Pareto distribution to the upper tail (top 20\%) of importance ratios, which returns smoothed importance weights $w_{i,k}^{(t)}$ to be used in place of the original importance ratios $r_{i,k}^{(t)}$ in \eqref{eq:is_loo}. The Pareto-smoothed importance sampling leave-one-out (PSIS-LOO) expected log-predictive density (elpd) for point $i$ in model $k$ can be calculated as
+\begin{align}
+\text{elpd}_{i,k} = \log \Bigg( \frac{\sum_{t=1}^T w_{i,k}^{(t)} \: p(y_i \vert \theta_k^{(t)}, M_k)}{\sum_{t=1}^T w_{i,k}^{(t)}} \Bigg). \label{eq:elpd_loo}
+\end{align}
+We use the R package `loo' \citep{vehtari2020loo} to implement PSIS-LOO, which requires only a $T \times n$ matrix of posterior pointwise log-likelihood samples. The loo package also solves for stacking weights $w$ when given an $n \times K$ matrix of pointwise elpd estimates with one column for each model. 
 
+The estimated shape parameter $\hat{k}$ from the generalized Pareto distribution can be used as a diagnostic for the reliability of PSIS-LOO approximations, where $\hat{k} > 0.7$ signals a potentially unreliable approximation. \citet{vehtari2017psis} recommend sampling directly from $p_{k, -i}(y_i)$ (exact LOO) for problematic data points if the number of problematic $y_i$ is small. Exact LOO requires fully refitting model $k$ with the leave-one-out dataset $y_{-i}$ and calculating the log-likelihood for the held out data point $y_i$. The exact LOO elpd for point $i$ can then be combined with PSIS-LOO estimates to solve for stacking weights $w$. 
 
 \subsection{Stacking selection models for publication bias} \label{sec:stacked_models}
 
@@ -223,16 +242,9 @@ u_i &= \gamma_0 + \frac{\gamma_1}{s_i} \nonumber \\
 v_i &= \frac{u_i + \tilde{\rho}_i \frac{y_i - \theta}{\sqrt{\tau^2 + s_i^2}}}{\sqrt{(1 - \tilde{\rho}_i^2)}} \nonumber \\
 \tilde{\rho_i} &= \frac{s_i}{(\tau^2 + s_i^2)^{1/2}} \rho. \nonumber
 \end{align}
-While \citet{bai2020} use default prior distributions \eqref{baigamma} for the parameters $\gamma_0$ and $\gamma_1$, \citet{mavridis2013copas} instead advise users to use expert elicitation or historical data to specify $(L_1, L_2)$ and $(U_1, U_2)$ in \eqref{mavgamma}. To avoid this, we specify $(L_1, L_2) = (0.01, 0.5)$ and $(U_1, U_2) = (0.5, 0.99)$, meaning we believe the lower bound for publication probability is between 1-50\%, and the upper bound is between 50-99\%. \citet{mavridis2013copas} gives $\tau$ a half-normal prior, while \citet{bai2020} uses a half-Cauchy prior 
-\begin{align}
-\begin{split}
-\tau & \sim \text{N}(0, 10^2) \mathbbm{1}_{\tau > 0} \\
-\tau & \sim \text{Cauchy}(0, 1) \mathbbm{1}_{\tau > 0}.
-\end{split}
-\end{align}
-We fit Copas models in JAGS \citep{plummer2003jags}.
+While \citet{bai2020} use default prior distributions \eqref{eq:baigamma} for the parameters $\gamma_0$ and $\gamma_1$, \citet{mavridis2013copas} instead advise researchers to use expert elicitation or historical data to specify $(L_1, L_2)$ and $(U_1, U_2)$ in \eqref{eq:mavgamma} as plausible bounds for the lower and upper probabilities of publication. To avoid the need for strictly informative prior values, we specify $(L_1, L_2) = (0, 0.5)$ and $(U_1, U_2) = (0.5, 1)$, meaning we believe the lower bound for publication probability is between 0-50\%, and the upper bound is between 50-100\%. \citet{mavridis2013copas} gives $\tau$ a half-normal prior $\tau \sim \text{N}(0, 10^2) \mathbbm{1}_{\tau > 0}$, while \citet{bai2020} uses a half-Cauchy prior $\tau \sim \text{Cauchy}(0, 1) \mathbbm{1}_{\tau > 0}$. We fit the two Copas models in JAGS \citep{plummer2003jags}.
 
-As a default, we fit a 1-step model with the step at $p=0.05$, a two-step model with steps at $p = (0.01, 0.10)$, and a two-step model with steps $p = (0.05, 0.20)$. We fit the stepped selection models in Stan \citep{gelman2015stan} because of the ability to easily code the custom probability distribution \eqref{eq:weightednormal}, which also makes extraction of the log-likelihood matrix simple. 
+As a default for the stepped models described in Section \ref{sec:pvalue}, we fit a 1-step model with the step at $p=0.05$, a two-step model with steps at $p = (0.01, 0.10)$, and a two-step model with steps $p = (0.05, 0.20)$. We fit the stepped selection models in Stan \citep{gelman2015stan} because of the ability to easily code the custom probability distribution \eqref{eq:weightednormal}, which also makes extraction of the log-likelihood matrix simple. For a given dataset we fit both Copas models and the three stepped models for a total of $K=5$ models to stack over.
 
 \section{Simulation} \label{sec:simulation}
 
@@ -242,7 +254,7 @@ Model performance is evaluated using bias, 95\% interval coverage, 95\% interval
 
 \subsection{Selection functions}
 
-The first selection function $f_1(p)$ decreases with one-sided $p$-values, i.e. $p_i = 1 - \Phi(y_i / s_i)$. It is constant at $f_1(p) = 1$ for $p \in [0, 0.005)$. It then decreases exponentially as $f_1(p) = \exp(-2p)$ for $p \in [0.005, 0.2)$. There is then a step at $p=0.2$, and $f_1(p) = \exp(-4p)$ for $p \in [0.2, 0.5)$, and is constant at $f_1(p) = 0.1$ for $p \in [0.5, 1]$. See Figure [reference figure] for a graphical depiction.
+The first selection function $f_1(p)$ decreases with one-sided $p$-values, i.e. $p_i = 1 - \Phi(y_i / s_i)$. It has three steps at $p = 0.005, 0.2, 0.5$, with exponential decay between the three steps. It is constant at $f_1(p) = 1$ for $p \in [0, 0.005)$. It then decreases exponentially as $f_1(p) = \exp(-2p)$ for $p \in [0.005, 0.2)$. There is then a step at $p=0.2$, and $f_1(p) = \exp(-4p)$ for $p \in [0.2, 0.5)$, and is constant at $f_1(p) = 0.1$ for $p \in [0.5, 1]$. See Figure [reference figure] for a graphical depiction.
 
 \subsection{Simulation results}
 
@@ -262,6 +274,15 @@ We simulated $K=1000$ iterations for each scenario $j$.
 \caption{Simulation results for selection function 1 with 60 base studies}\end{table}
 
 
+
+%%%%%%%% Figures
+
+\begin{figure}
+\includegraphics[height = 4in, width = 6in]{SM1.pdf}
+\caption{Selection mechanism 1: declining selection probabilities with increasing one-sided p-values. There are steps at $p = .2$ and $p=.5$ and exponential decay between cut-points. 
+Selection probability is constant after $p=0.5$.}
+\label{fig:SM1}
+\end{figure}
 
 %%%% Bibliography
 \bibliographystyle{biom}

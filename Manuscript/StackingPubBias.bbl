@@ -180,6 +180,14 @@ Thompson, S.~G. and Sharp, S.~J. (1999).
 \newblock Explaining heterogeneity in meta-analysis: a comparison of methods.
 \newblock {\em Statistics in medicine} {\bf 18,} 2693--2708.
 
+\bibitem[\protect\citeauthoryear{Vehtari, Gabry, Magnusson, Yao, B{\"u}rkner,
+  Paananen, and Gelman}{Vehtari et~al.}{2020}]{vehtari2020loo}
+Vehtari, A., Gabry, J., Magnusson, M., Yao, Y., B{\"u}rkner, P.-C., Paananen,
+  T., and Gelman, A. (2020).
+\newblock loo: Efficient leave-one-out cross-validation and waic for bayesian
+  models.
+\newblock R package version 2.4.1.
+
 \bibitem[\protect\citeauthoryear{Vehtari, Gelman, and Gabry}{Vehtari
   et~al.}{2017}]{vehtari2017psis}
 Vehtari, A., Gelman, A., and Gabry, J. (2017).
