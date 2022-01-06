@@ -5,23 +5,35 @@ library(ggplot2)
 library(here)
 library(xtable)
 
-sim1 <- readRDS(here("R", "Results", "sim.results.1.rds"))
-sim2 <- readRDS(here("R", "Results", "sim.results.2.rds"))
-sim3 <- readRDS(here("R", "Results", "sim.results.3.rds"))
+sim1 <- readRDS(here("R", "Results", "sim.extreme.big.15.rds"))
+sim2 <- readRDS(here("R", "Results", "sim.extreme.big.30.rds"))
+sim3 <- readRDS(here("R", "Results", "sim.extreme.big.60.rds"))
+sim4 <- readRDS(here("R", "Results", "sim.moderate.big.15.rds"))
+sim5 <- readRDS(here("R", "Results", "sim.moderate.big.30.rds"))
+sim6 <- readRDS(here("R", "Results", "sim.moderate.big.60.rds"))
+sim7 <- readRDS(here("R", "Results", "sim.extreme.small.15.rds"))
+sim8 <- readRDS(here("R", "Results", "sim.extreme.small.30.rds"))
+sim9 <- readRDS(here("R", "Results", "sim.extreme.small.60.rds"))
 
 sim1$stacked <- sim1$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:1000,
-         simulation = 1)
+         iteration = 1:200)
 sim2$stacked <- sim2$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:1000,
-         simulation = 2)
-
+         iteration = 1:200)
 sim3$stacked <- sim3$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:500,
-         simulation = 3)
+         iteration = 1:200)
+sim4$stacked <- sim4$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200)
+sim5$stacked <- sim5$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200)
+sim6$stacked <- sim6$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200)
+
 
 # convert columns to correct data type
 sim1$models <- sim1$models %>%
@@ -30,15 +42,27 @@ sim2$models <- sim2$models %>%
   type_convert() 
 sim3$models <- sim3$models %>%
   type_convert()
+sim4$models <- sim4$models %>%
+  type_convert()
+sim5$models <- sim5$models %>%
+  type_convert() 
+sim6$models <- sim6$models %>%
+  type_convert()
 
 
 
 all.models.1 <- bind_rows(sim1$stacked, sim1$models) %>%
-  arrange(simulation, iteration)
+  arrange(iteration)
 all.models.2 <- bind_rows(sim2$stacked, sim2$models) %>%
-  arrange(simulation, iteration)
+  arrange(iteration)
 all.models.3 <- bind_rows(sim3$stacked, sim3$models) %>%
-  arrange(simulation, iteration)
+  arrange(iteration)
+all.models.4 <- bind_rows(sim4$stacked, sim4$models) %>%
+  arrange(iteration)
+all.models.5 <- bind_rows(sim5$stacked, sim5$models) %>%
+  arrange(iteration)
+all.models.6 <- bind_rows(sim6$stacked, sim6$models) %>%
+  arrange(iteration)
 
 # this is from when we were throwing out iterations where pareto k's were big
 # baddies.1 <- unique(all.models.1$iteration[is.na(all.models.1$est.mean) & all.models.1$simulation==1])
@@ -48,47 +72,123 @@ sim.1.summary <- all.models.1 %>%
                    group_by(model) %>%
                    summarize(bias = mean(as.numeric(est.mean)) - sim1$theta0,
                              avg.sd = mean(as.numeric(sd)),
-                             cover = sum(ci.lower < 0.4 & ci.upper > 0.4) / n(),
+                             cover = sum(ci.lower < sim1$theta0 & ci.upper > sim1$theta0) / n(),
                              length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-                             rmse = sqrt(mean((as.numeric(est.mean) - 0.4)^2)),
-                             base.studies = 30)
+                             rmse = sqrt(mean((as.numeric(est.mean) - sim1$theta0)^2)),
+                             base.studies = 15) %>%
+  arrange(abs(bias))
 
 sim.2.summary <- all.models.2 %>%
                    group_by(model) %>%
-                   summarize(bias = mean(as.numeric(est.mean)) - sim1$theta0,
+                   summarize(bias = mean(as.numeric(est.mean)) - sim2$theta0,
                              avg.sd = mean(as.numeric(sd)),
-                             cover = sum(ci.lower < 0.4 & ci.upper > 0.4) / n(),
+                             cover = sum(ci.lower < sim2$theta0 & ci.upper > sim2$theta0) / n(),
                              length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-                             rmse = sqrt(mean((as.numeric(est.mean) - 0.4)^2)),
-                             base.studies = 60)
+                             rmse = sqrt(mean((as.numeric(est.mean) - sim2$theta0)^2)),
+                             base.studies = 30) %>%
+  arrange(abs(bias))
 
 sim.3.summary <- all.models.3 %>%
                    group_by(model) %>%
-                   summarize(bias = mean(as.numeric(est.mean)) - sim1$theta0,
+                   summarize(bias = mean(as.numeric(est.mean)) - sim3$theta0,
                              avg.sd = mean(as.numeric(sd)),
-                             cover = sum(ci.lower < 0.4 & ci.upper > 0.4) / n(),
+                             cover = sum(ci.lower < sim3$theta0 & ci.upper > sim3$theta0) / n(),
                              length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-                             rmse = sqrt(mean((as.numeric(est.mean) - 0.4)^2)),
-                             base.studies = 100)
+                             rmse = sqrt(mean((as.numeric(est.mean) - sim3$theta0)^2)),
+                             base.studies = 60) %>%
+  arrange(abs(bias))
 
-sim.full.summary <- bind_rows(sim.1.summary, sim.2.summary, sim.3.summary)
+sim.4.summary <- all.models.4 %>%
+  group_by(model) %>%
+  summarize(bias = mean(as.numeric(est.mean)) - sim4$theta0,
+            avg.sd = mean(as.numeric(sd)),
+            cover = sum(ci.lower < sim4$theta0 & ci.upper > sim4$theta0) / n(),
+            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
+            rmse = sqrt(mean((as.numeric(est.mean) - sim4$theta0)^2)),
+            base.studies = 15)
 
-sim.full.summary %>%
-  ggplot(aes(x = as.factor(base.studies), y = bias, group = model, color = model)) +
+sim.5.summary <- all.models.5 %>%
+  group_by(model) %>%
+  summarize(bias = mean(as.numeric(est.mean)) - sim5$theta0,
+            avg.sd = mean(as.numeric(sd)),
+            cover = sum(ci.lower < sim5$theta0 & ci.upper > sim5$theta0) / n(),
+            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
+            rmse = sqrt(mean((as.numeric(est.mean) - sim5$theta0)^2)),
+            base.studies = 30)
+
+sim.6.summary <- all.models.6 %>%
+  group_by(model) %>%
+  summarize(bias = mean(as.numeric(est.mean)) - sim6$theta0,
+            avg.sd = mean(as.numeric(sd)),
+            cover = sum(ci.lower < sim6$theta0 & ci.upper > sim6$theta0) / n(),
+            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
+            rmse = sqrt(mean((as.numeric(est.mean) - sim6$theta0)^2)),
+            base.studies = 60)
+
+
+
+extreme.big.summary <- bind_rows(sim.1.summary, sim.2.summary, sim.3.summary)
+moderate.big.summary <- bind_rows(sim.4.summary, sim.5.summary, sim.6.summary)
+
+extreme.big.bias <- extreme.big.summary %>%
+  ggplot(aes(x = as.factor(base.studies), y = bias, group = model, color = model,
+             linetype = (model == "stacked"))) +
   geom_point() + 
-  geom_line()
+  geom_line() +
+  scale_linetype_manual(values = c(1, 4)) +
+  scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
+                                "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
+                                "Two-sided (1)", "Two-sided (2)")) +
+  guides(linetype = FALSE) +
+  theme(plot.title = element_text(size = 12)) +
+  theme_bw() +
+  geom_hline(yintercept = 0, linetype = 2, color = "black") +
+  labs(x = "Base studies",
+       y = "Bias")
 
-sim.full.summary %>%
-  ggplot(aes(x = base.studies, y = avg.sd, color = model)) +
+
+extreme.big.rmse <- extreme.big.summary %>%
+  ggplot(aes(x = as.factor(base.studies), y = rmse, group = model, color = model,
+             linetype = (model == "stacked"))) +
   geom_point() + 
-  geom_line()
+  geom_line() +
+  scale_linetype_manual(values = c(1, 4)) +
+  scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
+                                  "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
+                                  "Two-sided (1)", "Two-sided (2)")) +
+  guides(linetype = FALSE) +
+  theme_bw() +
+  labs(x = "Base studies",
+       y = "RMSE")
 
+moderate.big.summary %>%
+  ggplot(aes(x = as.factor(base.studies), y = bias, group = model, color = model,
+             linetype = (model == "stacked"))) +
+  geom_point() + 
+  geom_line() +
+  scale_linetype_manual(values = c(1, 4)) +
+  scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
+                                "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
+                                "Two-sided (1)", "Two-sided (2)")) +
+  guides(linetype = FALSE) +
+  theme_bw()
+
+
+ggsave(here("R", "Results", "extreme_big_rmse.pdf"), plot = extreme.big.rmse, 
+       width = 5, height = 4, units = "in")
+ggsave(here("R", "Results", "extreme_big_bias.pdf"), plot = extreme.big.bias, 
+       width = 5, height = 4, units = "in")
 ### Generate latex tables
-# print(xtable(sim.1.summary[,-7], digits = 3), include.rownames = FALSE)
-# print(xtable(sim.2.summary[,-7], digits = 3), include.rownames = FALSE)
+print(xtable(sim.1.summary[,-7], digits = 3), include.rownames = FALSE)
+print(xtable(sim.2.summary[,-7], digits = 3), include.rownames = FALSE)
+print(xtable(sim.3.summary[,-7], digits = 3), include.rownames = FALSE)
 
 
-# graphic for probabilty of publication in simulation 1
+
+
+
+
+# graphic for probability of publication in simulation 1
 
 propensity.func.1 <- function(p){
   p.prop <- ifelse(p < 0.005, 1, 
