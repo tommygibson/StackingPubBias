@@ -1,8 +1,46 @@
 \begin{figure}
 \includegraphics[height = 4in, width = 6in]{SM1.pdf}
-\caption{Selection mechanism 1: declining selection probabilities with increasing p-values. There are steps at $p = .2$ and $p=.5$ and exponential decay between cut-points.
+\caption{Selection mechanism 1: declining selection probabilities with increasing one-sided p-values. There are steps at $p = .2$ and $p=.5$ and exponential decay between cut-points.
 Selection probability is constant after $p=0.5$.}
 \label{fig:SM1}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{extreme_big_bias.pdf}
+\caption{Plot of average bias from 200 simulation replications with from Selection mechanism 1 with extreme selection and $\theta = 0.5$.}
+\label{fig:func1_extreme_big_bias}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{extreme_big_rmse.pdf}
+\caption{Plot of root(MSE) from 200 simulation replications with from Selection mechanism 1 with extreme selection and $\theta = 0.5$.}
+\label{fig:func1_extreme_big_rmse}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{hackshaw_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using lung cancer data from \citet{hackshaw1997}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Dashed line shows stacked posterior distribution.}
+\label{fig:hackshaw}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{bornmann_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using grant application data from \citet{bornmann2007gender}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Dashed line is stacked posterior distribution of $\theta$.}
+\label{fig:bornmann}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{landenberger_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using recidivism data from \citet{landenberger2005recidivism}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Dashed line shows stacked posterior distribution.}
+\label{fig:landenberger}
 \end{figure}
 \efloatseparator
  

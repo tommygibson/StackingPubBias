@@ -108,16 +108,16 @@ w(p_i) =
 \end{equation}
 where $a_0 = 1$ and $a_K = 0$. Say $\boldsymbol{\omega} = (\omega_1, \dots, \omega_K)$. We then have that the likelihood contribution for each observation $y_i$ given $\theta$, $\tau^2$ and weight function $w(\cdot)$ is 
 \begin{equation} % weighted normal pdf
-f(y_i \vert \theta, \tau^2, \boldsymbol{\omega}) = \frac{\phi(y_i ; \theta, \tau^2 + s_i^2) \times w(p_i)}{\int \phi(x ; \theta, \tau^2 + s_i^2) \times w(1 - \Phi(x/2)) dx}, \label{eq:weightednormal}
+f(y_i \vert \theta, \tau^2, \boldsymbol{\omega}) = \frac{\phi(y_i ; \theta, \tau^2 + s_i^2) \times w(p_i)}{\int \phi(x ; \theta, \tau^2 + s_i^2) \times w(p(x, s_i)) dx}, \label{eq:weightednormal}
 \end{equation}
-where $\phi(x; a, b)$ represents a normal probability density function with mean $a$ and variance $b$. \citet{maier2020robma} place a ``cumulative-Dirichlet" prior distribution on the weights $\boldsymbol{\omega}$, which effectively means placing a symmetric Dirichlet prior on an auxiliary parameter $\widetilde{\boldsymbol{\omega}} \in (0, 1)^K$ and taking the cumulative sum 
+where $\phi(x; a, b)$ represents a normal probability density function with mean $a$ and variance $b$, and $p(x, s_i) = 1 - \Phi(x / s_i)$ for one-sided $p$-values and $p(x, s_i) = 2(1 - \Phi(\vert x \vert / s_i)$ for two-sided p-values. \citet{maier2020robma} place a ``cumulative-Dirichlet" prior distribution on the weights $\boldsymbol{\omega}$, which effectively means placing a symmetric Dirichlet prior on an auxiliary parameter $\widetilde{\boldsymbol{\omega}} \in (0, 1)^K$ and taking the cumulative sum 
 \begin{align}
 \begin{split}
 \widetilde{\boldsymbol{\omega}} & \sim \text{Dirichlet}(\text{rep}(1, K))  \\
 \boldsymbol{\omega} &= \text{cumulative-sum}(\widetilde{\boldsymbol{\omega}}). 
 \end{split}
 \end{align}
-This restricts $\boldsymbol{\omega}$ so that the $K$ intervals in \eqref{eq:weight_fcn} have increasing probability of publication with decreasing $p$-values, and $\omega_K = 1$. The symmetric Dirichlet prior on $\widetilde{\boldsymbol{\omega}}$ leads to prior means $(\frac{1}{K}, \frac{2}{K}, \dots, 1)$ for $\boldsymbol{\omega}$. Restricting $\omega_K = 1$ means each other $\omega_j$ represents the probability of publication for a study in interval $j$ relative to the probability of publication in the lowest interval. We consider a range of possible structures for the weight function $w(p)$ by varying both the number of intervals $K$ and the choice of cut-points $a_j$.
+This restricts $\boldsymbol{\omega}$ so that the $K$ intervals in \eqref{eq:weight_fcn} have increasing probability of publication with decreasing $p$-values, and $\omega_K = 1$. The symmetric Dirichlet prior on $\widetilde{\boldsymbol{\omega}}$ leads to prior means $(\frac{1}{K}, \frac{2}{K}, \dots, 1)$ for $\boldsymbol{\omega}$. Restricting $\omega_K = 1$ means each other $\omega_j$ represents the probability of publication for a study in interval $j$ relative to the probability of publication in the lowest $p$-value interval. We consider a range of possible structures for the weight function $w(p)$ by varying both the number of intervals $K$ and the choice of cut-points $a_j$ for both one-sided and two-sided $p$-values.
 
 %We place weakly informative Normal and half-Cauchy \citep{gelman2006prior} distributions on $\theta_0$ and $\tau$ as
 %\begin{align}
@@ -209,7 +209,7 @@ This approximation may be unstable because the importance ratios $r_{i,k}^{(t)}$
 \end{align}
 We use the R package `loo' \citep{vehtari2020loo} to implement PSIS-LOO, which requires only a $T \times n$ matrix of posterior pointwise log-likelihood samples. The loo package also solves for stacking weights $w$ when given an $n \times K$ matrix of pointwise elpd estimates with one column for each model. 
 
-The estimated shape parameter $\hat{k}$ from the generalized Pareto distribution can be used as a diagnostic for the reliability of PSIS-LOO approximations, where $\hat{k} > 0.7$ signals a potentially unreliable approximation. \citet{vehtari2017psis} recommend sampling directly from $p_{k, -i}(y_i)$ (exact LOO) for problematic data points if the number of problematic $y_i$ is small. Exact LOO requires fully refitting model $k$ with the leave-one-out dataset $y_{-i}$ and calculating the log-likelihood for the held out data point $y_i$. The exact LOO elpd for point $i$ can then be combined with PSIS-LOO estimates to solve for stacking weights $w$. 
+The estimated shape parameter $\hat{k}$ from the generalized Pareto distribution can be used as a diagnostic for the reliability of PSIS-LOO approximations, where $\hat{k} > 0.7$ signals a potentially unreliable approximation. \citet{vehtari2017psis} recommend sampling directly from $p_{k, -i}(y_i)$ (exact LOO) for problematic data points if the number of problematic $y_i$ is small. Exact LOO requires fully refitting model $k$ with the leave-one-out dataset $y_{-i}$ and calculating the log-likelihood for the held out data point $y_i$. The exact LOO elpd for point $i$ can then be combined with PSIS-LOO estimates for other data $y_{-i}$ to solve for stacking weights $w$. 
 
 \subsection{Stacking selection models for publication bias} \label{sec:stacked_models}
 
@@ -244,34 +244,87 @@ v_i &= \frac{u_i + \tilde{\rho}_i \frac{y_i - \theta}{\sqrt{\tau^2 + s_i^2}}}{\s
 \end{align}
 While \citet{bai2020} use default prior distributions \eqref{eq:baigamma} for the parameters $\gamma_0$ and $\gamma_1$, \citet{mavridis2013copas} instead advise researchers to use expert elicitation or historical data to specify $(L_1, L_2)$ and $(U_1, U_2)$ in \eqref{eq:mavgamma} as plausible bounds for the lower and upper probabilities of publication. To avoid the need for strictly informative prior values, we specify $(L_1, L_2) = (0, 0.5)$ and $(U_1, U_2) = (0.5, 1)$, meaning we believe the lower bound for publication probability is between 0-50\%, and the upper bound is between 50-100\%. \citet{mavridis2013copas} gives $\tau$ a half-normal prior $\tau \sim \text{N}(0, 10^2) \mathbbm{1}_{\tau > 0}$, while \citet{bai2020} uses a half-Cauchy prior $\tau \sim \text{Cauchy}(0, 1) \mathbbm{1}_{\tau > 0}$. We fit the two Copas models in JAGS \citep{plummer2003jags}.
 
-As a default for the stepped models described in Section \ref{sec:pvalue}, we fit a 1-step model with the step at $p=0.05$, a two-step model with steps at $p = (0.01, 0.10)$, and a two-step model with steps $p = (0.05, 0.20)$. We fit the stepped selection models in Stan \citep{gelman2015stan} because of the ability to easily code the custom probability distribution \eqref{eq:weightednormal}, which also makes extraction of the log-likelihood matrix simple. For a given dataset we fit both Copas models and the three stepped models for a total of $K=5$ models to stack over.
+As a default for the stepped models described in Section \ref{sec:pvalue}, we fit six different models. These include
+\begin{enumerate}
+\item{Two-sided selection, $p$-value cutoff at 0.05}
+\item{Two-sided selection, $p$-value cutoffs at 0.01 and 0.10}
+\item{One-sided selection, $p$-value cutoff at 0.025}
+\item{One-sided selection, $p$-value cutoffs at 0.025 and 0.5}
+\item{One-sided selection, $p$-value cutoffs at 0.025 and 0.10}
+\item{One-sided selection, $p$-value cutoffs at 0.005 and 0.05}
+\end{enumerate}
+We incorporate more one-sided than two-sided selection models under an assumption that one-sided selection is more likely in practice, as journals and researchers may select for results that match a specific directional effect. We fit the stepped selection models in Stan \citep{gelman2015stan} because of the ability to code the custom probability distribution \eqref{eq:weightednormal}, which also makes extraction of the log-likelihood matrix simple. For a given dataset we fit both Copas models and the six stepped models for a total of $K=8$ models to stack over.
+
+After optimizing stacking weights $w$, we sample from the stacked posterior distribution for $\theta$ by taking $w_k \times T$ samples with replacement from the posterior distribution for $\theta$ for model each model $k$ and combining samples. 
 
 \section{Simulation} \label{sec:simulation}
 
-The aim of the simulation is to assess how well the stacked model described in Section \ref{sec:stacked_models} \textit{stacks up} against the individual models $<$please help me find a way to keep the pun in here$>$. We simulate data for meta-analyses using a $2\times3$ factorial design with $\theta = (0, 0.4)$ and number of studies per meta analysis $S = (30, 60, 100)$ for 6 total scenarios. For each simulation scenario $j = 1, \dots, 6$ we set $\tau = 0.2$ and study-specific standard errors $s_i$, $i = 1, \dots, S$, are distributed as Uniform(0.2, 0.8). Study-specific true mean effects $\theta_i$ are distributed as $\theta_i \sim \text{N}(\theta, \tau^2)$. We then sample $y_i \sim \text{N}(\theta_i, s_i^2)$ as observed study effects. Each study $i$ is assigned a probability of publication $\alpha_i$ based on one of multiple selection functions which are chosen deliberately such that none of the stepped selection models or Copas models can individually capture the true selection mechanism. Whether or not each study $i$ is included in the meta-analysis is then determined by an indicator $B_i \sim \text{Bernoulli}(\alpha_i)$. 
+The aim of the simulation is to assess how well the stacked model described in Section \ref{sec:stacked_models} \textit{stacks up} against the individual models $<$please help me find a way to keep the pun in here$>$ in estimating the true mean effect $\theta$. We simulate data for meta-analyses using a $2\times 2 \times 2 \times 3$ factorial design with 
+\begin{itemize}
+\item{overall mean effect $\theta = 0.1$ or $0.5$,}
+\item{a small, medium, or large amount of studies per meta-analysis,}
+\item{two complicated selection functions, and}
+\item{a moderate or extreme level of selection bias for each selection function,}
+\end{itemize}
+for 24 simulation scenarios. For each simulation scenario $j = 1, \dots, 24$ we set $\tau = 0.2$ and study-specific standard errors $s_{i}$, $i = 1, \dots, \widetilde{S}_j$, are distributed as Uniform(0.1, 0.8), where $\widetilde{S}_j$ is an \textit{initial} number of studies per meta-analysis in scenario $j$. Study-specific true mean effects $\theta_{i}$ are distributed as $\theta_{i} \sim \text{N}(\theta_j, \tau^2)$, $i = 1, \dots, \widetilde{S}_j$. We then sample $y_{i} \sim \text{N}(\theta_i, s_i^2)$ as observed study effects. Each study $i$ is assigned a probability of publication $\alpha_i$ based on one of two selection functions. The selection functions are chosen deliberately such that none of the stepped selection models or Copas models can individually capture the true selection mechanism. Whether or not each study $i$ is included in the meta-analysis is then determined by an indicator $B_i \sim \text{Bernoulli}(\alpha_i)$, so that the number of studies $S$ per meta-analysis is $S = \sum_{i=1}^{S_{\text{init}}} B_i$, which varies and is less than $\widetilde{S}_j$. We choose $S_j$ such that an average of $\sim 10, 20,$ and $40$ studies survive the selection process and enter the meta-analysis for the small, medium, and large simulation scenarios respectively. 
 
 Model performance is evaluated using bias, 95\% interval coverage, 95\% interval length, and root-mean squared error (RMSE). 
 
-\subsection{Selection functions}
+\subsection{Selection function 1}
 
-The first selection function $f_1(p)$ decreases with one-sided $p$-values, i.e. $p_i = 1 - \Phi(y_i / s_i)$. It has three steps at $p = 0.005, 0.2, 0.5$, with exponential decay between the three steps. It is constant at $f_1(p) = 1$ for $p \in [0, 0.005)$. It then decreases exponentially as $f_1(p) = \exp(-2p)$ for $p \in [0.005, 0.2)$. There is then a step at $p=0.2$, and $f_1(p) = \exp(-4p)$ for $p \in [0.2, 0.5)$, and is constant at $f_1(p) = 0.1$ for $p \in [0.5, 1]$. See Figure [reference figure] for a graphical depiction.
+The first two selection functions are moderate (M) and extreme (E) versions of the same functional structure and are denoted $f_{1M}$ and $f_{1E}$. The two functions decrease with one-sided $p$-values where $p_i = 1 - \Phi(y_i / s_i)$, and they have three steps at $p = 0.005, 0.2, 0.5$ with exponential decay between the three steps. Both functions are constant at $f_1(p) = 1$ for $p \in [0, 0.005)$. They then decrease exponentially for $p \in [0.005, 0.2)$ with $f_{1M}(p) = \exp(-0.5p)$ and $f_{1E}(p) = \exp(-2p)$. There is then a step at $p=0.2$, and $f_{1M}(p) = \exp(-1p)$ and $f_{1E}(p) = \exp(-4p)$ for $p \in [0.2, 0.5)$. The functions are constant for $p \in [0.5, 1]$, with $f_{1M}(p) = 0.5$ and $f_{1E}(p) = 0.1$. See Figure \ref{fig:SM1} for a graph of both functions. The average number of studies that survive the selection mechanism is around $2/3$ for $f_{1E}$ and $5/6$ for $f_{1M}$ when $\theta = 0.5$. When $\theta = 0.1$, the average number of studies is around $1/6$ for $f_{1E}$ and $<$insert average number for function $f_{1M} > $. 
 
-\subsection{Simulation results}
+\subsubsection{Results from simulation 1}
 
-We simulated $K=1000$ iterations for each scenario $j$.
+We simulated $K=200$ iterations for each of 12 scenarios. $<$ for now look at Figures \ref{fig:func1_extreme_big_bias} - \ref{fig:func1_extreme_big_rmse} and Tables \ref{table:sim1_extreme_big_15} - \ref{table:sim1_extreme_big_60}. $>$
 
-\section{Numerical example} \label{sec:numex}
+\section{Numerical examples} \label{sec:numex}
 
+We illustrate Bayesian stacking of selection models for publication bias to multiple datasets previously analyzed in the meta-analysis literature. The first dataset is a set of 37 studies estimating the effects of second-hand smoke on the likelihood of developing lung cancer originally analyzed by \citet{hackshaw1997}, who performed a random-effects analysis and found a mean log-odds ratio of 0.217 (95\% CI 0.12 - 0.31). Next we analyze a set of 66 studies from \citet{bornmann2007gender} comparing the odds of a successful grant proposal for grants written by men or women. The third numerical example uses a set of 58 studies from \citet{landenberger2005recidivism} measuring how cognitive behavioral therapy (CBT) interventions are associated with recidivism in both adult and juvenile offenders, with the main outcome measure as the log-odds ratio.
 
+$<$ analyses are complete, check some posterior plots in Figures 4-6. Tables (and more writeup) coming this week $>$.
 
 
 %%%%%% Tables!
 
-\begin{table}[ht]\centering\begin{tabular}{lrrrrr}  \hlineModel & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\   \hlineBai & 0.130 & 0.175 & 0.925 & 0.692 & 0.190 \\   Mavridis & 0.066 & 0.184 & 0.978 & 0.728 & 0.164 \\   one.step & 0.169 & 0.125 & 0.808 & 0.491 & 0.194 \\   stacked & 0.060 & 0.167 & 0.951 & 0.664 & 0.160 \\   standard & 0.234 & 0.115 & 0.439 & 0.452 & 0.254 \\   three.step & 0.089 & 0.147 & 0.983 & 0.581 & 0.137 \\   two.step & 0.121 & 0.131 & 0.944 & 0.516 & 0.155 \\    \hline\end{tabular}
-\caption{Simulation results for selection function 1 with 30 base studies}\end{table}
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\ 
+  \hline
+Stacked & 0.021 & 0.152 & 0.990 & 0.605 & 0.124 \\   Two-side (2) & 0.022 & 0.139 & 1.000 & 0.552 & 0.103 \\   One-side (4) & 0.024 & 0.140 & 1.000 & 0.554 & 0.104 \\   One-side (3) & 0.026 & 0.138 & 1.000 & 0.548 & 0.104 \\   Mavridis & 0.031 & 0.197 & 0.990 & 0.784 & 0.147 \\   One-side (2) & 0.041 & 0.140 & 0.995 & 0.555 & 0.108 \\   Two-side (1) & 0.056 & 0.140 & 0.995 & 0.558 & 0.118 \\   One-side (1) & 0.059 & 0.140 & 0.990 & 0.555 & 0.117 \\   Bai & 0.077 & 0.172 & 0.975 & 0.686 & 0.148 \\   Standard & 0.133 & 0.145 & 0.915 & 0.570 & 0.176 \\ 
+   \hline
+\end{tabular}
+\caption{Simulation results for selection function 1 with 15 base studies and extreme selection}
+\label{table:sim1_extreme_big_15}
+\end{table}
 
-\begin{table}[ht]\centering\begin{tabular}{lrrrrr}  \hlineModel & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\   \hlineBai & 0.093 & 0.129 & 0.895 & 0.508 & 0.148 \\   Mavridis & 0.031 & 0.122 & 0.969 & 0.483 & 0.117 \\   one.step & 0.172 & 0.084 & 0.468 & 0.329 & 0.185 \\   stacked & 0.036 & 0.117 & 0.937 & 0.462 & 0.119 \\   standard & 0.220 & 0.076 & 0.130 & 0.297 & 0.230 \\   three.step & 0.099 & 0.101 & 0.870 & 0.396 & 0.131 \\   two.step & 0.130 & 0.090 & 0.743 & 0.353 & 0.149 \\    \hline\end{tabular}
-\caption{Simulation results for selection function 1 with 60 base studies}\end{table}
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\ 
+  \hline
+Stacked          & 0.004 & 0.102 & 0.940 & 0.404 & 0.108 \\   Mavridis        & -0.010 & 0.117 & 0.950 & 0.465 & 0.112 \\   Two-side (2) & 0.032 & 0.091 & 0.960 & 0.361 & 0.088 \\   One-side (4) & 0.034 & 0.091 & 0.950 & 0.359 & 0.090 \\   One-side (3) & 0.038 & 0.090 & 0.955 & 0.357 & 0.089 \\   One-side (2) & 0.042 & 0.089 & 0.945 & 0.355 & 0.092 \\   Bai 		      & 0.043 & 0.110 & 0.940 & 0.439 & 0.113 \\   Two-side (1) & 0.062 & 0.089 & 0.900 & 0.353 & 0.103 \\   One-side (1) & 0.066 & 0.088 & 0.900 & 0.351 & 0.105 \\   Standard      & 0.113 & 0.086 & 0.760 & 0.333 & 0.139 \\ 
+   \hline
+\end{tabular}
+\caption{Simulation results for selection function 1 with 30 base studies and extreme selection}
+\label{table:sim1_extreme_big_30}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\ 
+  \hline
+Stacked & 0.003 & 0.076 & 0.945 & 0.301 & 0.078 \\   Mavridis & -0.025 & 0.080 & 0.930 & 0.317 & 0.084 \\   Bai & 0.032 & 0.081 & 0.925 & 0.319 & 0.081 \\   Two-side (2) & 0.050 & 0.064 & 0.915 & 0.254 & 0.074 \\   One-side (4) & 0.051 & 0.064 & 0.925 & 0.253 & 0.074 \\   One-side (2) & 0.052 & 0.063 & 0.930 & 0.248 & 0.076 \\   One-side (3) & 0.058 & 0.063 & 0.890 & 0.248 & 0.080 \\   Two-side (1) & 0.076 & 0.062 & 0.795 & 0.243 & 0.094 \\   One-side (1) & 0.080 & 0.061 & 0.800 & 0.241 & 0.097 \\   Standard & 0.113 & 0.058 & 0.465 & 0.224 & 0.126 \\ 
+   \hline
+\end{tabular}
+\caption{Simulation results for selection function 1 with 60 base studies and extreme selection}
+\label{table:sim1_extreme_big_60}
+\end{table}
 
 
 
@@ -282,6 +335,41 @@ We simulated $K=1000$ iterations for each scenario $j$.
 \caption{Selection mechanism 1: declining selection probabilities with increasing one-sided p-values. There are steps at $p = .2$ and $p=.5$ and exponential decay between cut-points. 
 Selection probability is constant after $p=0.5$.}
 \label{fig:SM1}
+\end{figure}
+
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{extreme_big_bias.pdf}
+\caption{Plot of average bias from 200 simulation replications with from Selection mechanism 1 with extreme selection and $\theta = 0.5$.}
+\label{fig:func1_extreme_big_bias}
+\end{figure}
+
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{extreme_big_rmse.pdf}
+\caption{Plot of root(MSE) from 200 simulation replications with from Selection mechanism 1 with extreme selection and $\theta = 0.5$.}
+\label{fig:func1_extreme_big_rmse}
+\end{figure}
+
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{hackshaw_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using lung cancer data from \citet{hackshaw1997}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Dashed line shows stacked posterior distribution.}
+\label{fig:hackshaw}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{bornmann_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using grant application data from \citet{bornmann2007gender}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Dashed line is stacked posterior distribution of $\theta$.}
+\label{fig:bornmann}
+\end{figure}
+
+
+\begin{figure}
+\includegraphics[height = 4in, width = 5in]{landenberger_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using recidivism data from \citet{landenberger2005recidivism}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Dashed line shows stacked posterior distribution.}
+\label{fig:landenberger}
 \end{figure}
 
 %%%% Bibliography

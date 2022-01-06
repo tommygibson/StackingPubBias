@@ -20,6 +20,12 @@ Bernardo, J.~M. and Smith, A.~F. (2009).
 \newblock {\em Bayesian theory}, volume 405.
 \newblock John Wiley \& Sons.
 
+\bibitem[\protect\citeauthoryear{Bornmann, Mutz, and Daniel}{Bornmann
+  et~al.}{2007}]{bornmann2007gender}
+Bornmann, L., Mutz, R., and Daniel, H.-D. (2007).
+\newblock Gender differences in grant peer review: A meta-analysis.
+\newblock {\em Journal of Informetrics} {\bf 1,} 226--238.
+
 \bibitem[\protect\citeauthoryear{Clyde and Iversen}{Clyde and
   Iversen}{2013}]{clyde2013bma}
 Clyde, M. and Iversen, E.~S. (2013).
@@ -78,6 +84,13 @@ Guan, M. and Vandekerckhove, J. (2016).
 \newblock A bayesian approach to mitigation of publication bias.
 \newblock {\em Psychonomic bulletin \& review} {\bf 23,} 74--86.
 
+\bibitem[\protect\citeauthoryear{Hackshaw, Law, and Wald}{Hackshaw
+  et~al.}{1997}]{hackshaw1997}
+Hackshaw, A.~K., Law, M.~R., and Wald, N.~J. (1997).
+\newblock The accumulated evidence on lung cancer and environmental tobacco
+  smoke.
+\newblock {\em Bmj} {\bf 315,} 980--988.
+
 \bibitem[\protect\citeauthoryear{Hedges}{Hedges}{1984}]{hedges1984selection}
 Hedges, L.~V. (1984).
 \newblock Estimation of effect size under nonrandom sampling: The effects of
@@ -101,6 +114,13 @@ Jin, Z.-C., Zhou, X.-H., and He, J. (2015).
 \newblock Statistical methods for dealing with publication bias in
   meta-analysis.
 \newblock {\em Statistics in medicine} {\bf 34,} 343--360.
+
+\bibitem[\protect\citeauthoryear{Landenberger and Lipsey}{Landenberger and
+  Lipsey}{2005}]{landenberger2005recidivism}
+Landenberger, N.~A. and Lipsey, M.~W. (2005).
+\newblock The positive effects of cognitive--behavioral programs for offenders:
+  A meta-analysis of factors associated with effective treatment.
+\newblock {\em Journal of experimental criminology} {\bf 1,} 451--476.
 
 \bibitem[\protect\citeauthoryear{Le and Clarke}{Le and
   Clarke}{2017}]{le2017stacking}

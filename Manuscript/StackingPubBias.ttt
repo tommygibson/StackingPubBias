@@ -4,16 +4,20 @@
   \hline
 Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
   \hline
-Bai & 0.130 & 0.175 & 0.925 & 0.692 & 0.190 \\
-  Mavridis & 0.066 & 0.184 & 0.978 & 0.728 & 0.164 \\
-  one.step & 0.169 & 0.125 & 0.808 & 0.491 & 0.194 \\
-  stacked & 0.060 & 0.167 & 0.951 & 0.664 & 0.160 \\
-  standard & 0.234 & 0.115 & 0.439 & 0.452 & 0.254 \\
-  three.step & 0.089 & 0.147 & 0.983 & 0.581 & 0.137 \\
-  two.step & 0.121 & 0.131 & 0.944 & 0.516 & 0.155 \\
+Stacked & 0.021 & 0.152 & 0.990 & 0.605 & 0.124 \\
+  Two-side (2) & 0.022 & 0.139 & 1.000 & 0.552 & 0.103 \\
+  One-side (4) & 0.024 & 0.140 & 1.000 & 0.554 & 0.104 \\
+  One-side (3) & 0.026 & 0.138 & 1.000 & 0.548 & 0.104 \\
+  Mavridis & 0.031 & 0.197 & 0.990 & 0.784 & 0.147 \\
+  One-side (2) & 0.041 & 0.140 & 0.995 & 0.555 & 0.108 \\
+  Two-side (1) & 0.056 & 0.140 & 0.995 & 0.558 & 0.118 \\
+  One-side (1) & 0.059 & 0.140 & 0.990 & 0.555 & 0.117 \\
+  Bai & 0.077 & 0.172 & 0.975 & 0.686 & 0.148 \\
+  Standard & 0.133 & 0.145 & 0.915 & 0.570 & 0.176 \\
    \hline
 \end{tabular}
-\caption{Simulation results for selection function 1 with 30 base studies}
+\caption{Simulation results for selection function 1 with 15 base studies and extreme selection}
+\label{table:sim1_extreme_big_15}
 \end{table}
 \efloatseparator
  
@@ -23,16 +27,43 @@ Bai & 0.130 & 0.175 & 0.925 & 0.692 & 0.190 \\
   \hline
 Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
   \hline
-Bai & 0.093 & 0.129 & 0.895 & 0.508 & 0.148 \\
-  Mavridis & 0.031 & 0.122 & 0.969 & 0.483 & 0.117 \\
-  one.step & 0.172 & 0.084 & 0.468 & 0.329 & 0.185 \\
-  stacked & 0.036 & 0.117 & 0.937 & 0.462 & 0.119 \\
-  standard & 0.220 & 0.076 & 0.130 & 0.297 & 0.230 \\
-  three.step & 0.099 & 0.101 & 0.870 & 0.396 & 0.131 \\
-  two.step & 0.130 & 0.090 & 0.743 & 0.353 & 0.149 \\
+Stacked          & 0.004 & 0.102 & 0.940 & 0.404 & 0.108 \\
+  Mavridis        & -0.010 & 0.117 & 0.950 & 0.465 & 0.112 \\
+  Two-side (2) & 0.032 & 0.091 & 0.960 & 0.361 & 0.088 \\
+  One-side (4) & 0.034 & 0.091 & 0.950 & 0.359 & 0.090 \\
+  One-side (3) & 0.038 & 0.090 & 0.955 & 0.357 & 0.089 \\
+  One-side (2) & 0.042 & 0.089 & 0.945 & 0.355 & 0.092 \\
+  Bai        & 0.043 & 0.110 & 0.940 & 0.439 & 0.113 \\
+  Two-side (1) & 0.062 & 0.089 & 0.900 & 0.353 & 0.103 \\
+  One-side (1) & 0.066 & 0.088 & 0.900 & 0.351 & 0.105 \\
+  Standard      & 0.113 & 0.086 & 0.760 & 0.333 & 0.139 \\
    \hline
 \end{tabular}
-\caption{Simulation results for selection function 1 with 60 base studies}
+\caption{Simulation results for selection function 1 with 30 base studies and extreme selection}
+\label{table:sim1_extreme_big_30}
+\end{table}
+\efloatseparator
+ 
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
+  \hline
+Stacked & 0.003 & 0.076 & 0.945 & 0.301 & 0.078 \\
+  Mavridis & -0.025 & 0.080 & 0.930 & 0.317 & 0.084 \\
+  Bai & 0.032 & 0.081 & 0.925 & 0.319 & 0.081 \\
+  Two-side (2) & 0.050 & 0.064 & 0.915 & 0.254 & 0.074 \\
+  One-side (4) & 0.051 & 0.064 & 0.925 & 0.253 & 0.074 \\
+  One-side (2) & 0.052 & 0.063 & 0.930 & 0.248 & 0.076 \\
+  One-side (3) & 0.058 & 0.063 & 0.890 & 0.248 & 0.080 \\
+  Two-side (1) & 0.076 & 0.062 & 0.795 & 0.243 & 0.094 \\
+  One-side (1) & 0.080 & 0.061 & 0.800 & 0.241 & 0.097 \\
+  Standard & 0.113 & 0.058 & 0.465 & 0.224 & 0.126 \\
+   \hline
+\end{tabular}
+\caption{Simulation results for selection function 1 with 60 base studies and extreme selection}
+\label{table:sim1_extreme_big_60}
 \end{table}
 \efloatseparator
  
