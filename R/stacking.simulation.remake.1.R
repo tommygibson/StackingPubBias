@@ -34,7 +34,12 @@ S.full <- readRDS(here("R", "sim.1.4.initial.S.rds"))[1,]
 S.target <- c(10, 20, 40, 80)
 M <- 200
 
-for(n in 4:4){
+t <- stan_model(here("R", "Models", "step.twoside.stan"))
+t.loo <- stan_model(here("R", "Models", "step.twoside.loo.stan"))
+o <- stan_model(here("R", "Models", "step.oneside.stan"))
+o.loo <- stan_model(here("R", "Models", "step.oneside.loo.stan"))
+
+for(n in 1:length(S.full)){
   
   weights <- as.data.frame(matrix(nrow = M, ncol = 8)) # weight for each model (mav, bai, step functions)
   stacked.summary <- as.data.frame(matrix(nrow = M, ncol = 4)) # mean, sd, 2.5, 97.5
@@ -147,10 +152,10 @@ for(n in 4:4){
                     U1 = U1, U2 = U2)
     
     twoside.dat.1 <- list(S = S,
-                      y = y,
-                      s = s,
-                      steps = array(c(.05), dim = 1),
-                      M = 1)
+                          y = y,
+                          s = s,
+                          steps = array(c(.05), dim = 1),
+                          M = 1)
     twoside.dat.2 <- list(S = S,
                           y = y,
                           s = s,
@@ -192,19 +197,19 @@ for(n in 4:4){
                          list(data = names(bai.dat), inits = init.gen.bai.adj, parameters.to.save = stack.params,
                               model.file = here("R", "Models", "copas.jags.bai.adj.txt"),
                               n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
-  
-    twoside.1 <- stan(file = here("R", "Models", "step.twoside.stan"), data = twoside.dat.1,
-                      iter = 2000, chains = 4)
-    twoside.2 <- stan(file = here("R", "Models", "step.twoside.stan"), data = twoside.dat.2,
-                      iter = 2000, chains = 4)
-    oneside.1 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.1,
-                      iter = 2000, chains = 4)
-    oneside.2 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.2,
-                      iter = 2000, chains = 4)
-    oneside.3 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.3,
-                      iter = 2000, chains = 4)
-    oneside.4 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.4,
-                      iter = 2000, chains = 4)
+    
+    twoside.1 <- sampling(t, data = twoside.dat.1,
+                          iter = 2000, chains = 4, cores = 1)
+    twoside.2 <- sampling(t, data = twoside.dat.2,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.1 <- sampling(o, data = oneside.dat.1,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.2 <- sampling(o, data = oneside.dat.2,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.3 <- sampling(o, data = oneside.dat.3,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.4 <- sampling(o, data = oneside.dat.4,
+                          iter = 2000, chains = 4, cores = 1)
     
     
     model.sums[(9 * j - 8):(9 * j),] <- cbind(c("std", "Mavridis", "Bai", "twoside.1", "twoside.2", 
@@ -259,162 +264,162 @@ for(n in 4:4){
       })))
       
       for(m in which(num_big_k != 0)){
-       ### set up data for leave-one-out
-       S <- dim(dat.select)[1] - 1
-       H <- 1
-       
-       for(i in 1:num_big_k[m]){
-         y_h <- dat.select$y[big_k_indices[[m]][i]]
-         s_h <- dat.select$s[big_k_indices[[m]][i]]
-         y <- dat.select$y[-big_k_indices[[m]][i]]
-         s <- dat.select$s[-big_k_indices[[m]][i]]
-         
-         ## different data structure, inits, etc for each model (ugh)
-         if(m == 1){
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = y_h,
-                           s = s, s_h = s_h,
-                           L1 = L1, L2 = L2,
-                           U1 = U1, U2 = U2)
-           init.gen.loo <- function(){
-             list(
-               z = runif(S, 0, 1),
-               theta0 = rnorm(1, 0, 0.25),
-               rho = runif(1, -0.5, 0.5),
-               tau = runif(1, 0.1, 0.5),
-               p.low = runif(1, 0.38, 0.42),
-               p.high = runif(1, 0.78, 0.82)
-             )
-           }
-           
-           params.loo <- c("loglik_h")
-           ### Getting weird errors using jags.parallel
-           fit.loo <- do.call(jags.parallel,
-                              list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
-                                   model.file = here("R", "Models", "copas.mav.loo.txt"),
-                                   n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
-           # fit.loo <- jags(data = dat.loo, inits = init.gen.loo, parameters.to.save = params.loo,
-           #                 model.file = here("R", "Models", "copas.mav.loo.txt"),
-           #                 n.iter = 5000, n.chains = 4, n.burnin = 4000, DIC = FALSE)
-           
-           # occasionally jags can't handle the log-likelihood of real bad observations
-           # extract the regular likelihood instead, log it afterwards, seems to work
-           elpd_holdout <- elpd(log(fit.loo$BUGSoutput$sims.array))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         else if(m == 2){
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = y_h,
-                           s = s, s_h = s_h)
-           init.gen.loo <- function(){
-             list(
-               z = runif(S, 0, 1),
-               theta0 = rnorm(1, 0, 0.25),
-               rho = runif(1, -0.5, 0.5),
-               tau = runif(1, 0.1, 0.5),
-               gamma0 = runif(1, -1, 1),
-               gamma1 = runif(1, 0, max(s))
-             )
-           }
-           
-           params.loo <- c("loglik_h")
-           fit.loo <- do.call(jags.parallel,
-                              list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
-                                   model.file = here("R", "Models", "copas.bai.loo.txt"),
-                                   n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
-           # fit.loo <- jags(data = dat.loo, inits = init.gen.loo, parameters.to.save = params.loo,
-           #                 model.file = here("R", "Models", "copas.bai.loo.txt"),
-           #                 n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE)
-           
-           # occasionally jags can't handle the log-likelihood of real bad observations
-           # extract the regular likelihood instead, log it afterwards, seems to work
-           elpd_holdout <- elpd(log(fit.loo$BUGSoutput$sims.array))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout  
-         }
-         else if(m == 3){ ## two-side selection, p = .05
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = array(y_h, dim = 1),
-                           s = s, s_h = array(s_h, dim = 1),
-                           steps = array(c(.05), dim = 1),
-                           M = 1)
-           fit.loo <- stan(file = here("R", "Models", "step.twoside.loo.stan"), data = dat.loo,
-                           iter = 2000, chains = 4)
-           
-           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         else if(m == 4){ ## two-side, p = .01, .1
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = array(y_h, dim = 1),
-                           s = s, s_h = array(s_h, dim = 1),
-                           steps = c(0.1, 0.01),
-                           M = 2)
-           fit.loo <- stan(file = here("R", "Models", "step.twoside.loo.stan"), data = dat.loo,
-                           iter = 2000, chains = 4)
-           
-           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         else if(m == 5){ ## one-side, p = .025
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = array(y_h, dim = 1),
-                           s = s, s_h = array(s_h, dim = 1),
-                           steps = array(c(.025), dim = 1),
-                           M = 1)
-           fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                           iter = 2000, chains = 4)
-           
-           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         else if(m == 6){ ## one-side, p = .025, .5
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = array(y_h, dim = 1),
-                           s = s, s_h = array(s_h, dim = 1),
-                           steps = c(.5, .025),
-                           M = 2)
-           fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                           iter = 2000, chains = 4)
-           
-           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         else if(m == 7){ ## one-side, p = .005, .05
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = array(y_h, dim = 1),
-                           s = s, s_h = array(s_h, dim = 1),
-                           steps = c(0.05, 0.005),
-                           M = 2)
-           fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                           iter = 2000, chains = 4)
-           
-           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         else if(m == 8){ ## one-side, p = .025, .1
-           dat.loo <- list(S = S, H = H,
-                           y = y, y_h = array(y_h, dim = 1),
-                           s = s, s_h = array(s_h, dim = 1),
-                           steps = c(0.1, 0.025),
-                           M = 2)
-           fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                           iter = 2000, chains = 4)
-           
-           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
-           
-           lpds[big_k_indices[[m]][i], m] <- elpd_holdout
-         }
-         
+        ### set up data for leave-one-out
+        S <- dim(dat.select)[1] - 1
+        H <- 1
+        
+        for(i in 1:num_big_k[m]){
+          y_h <- dat.select$y[big_k_indices[[m]][i]]
+          s_h <- dat.select$s[big_k_indices[[m]][i]]
+          y <- dat.select$y[-big_k_indices[[m]][i]]
+          s <- dat.select$s[-big_k_indices[[m]][i]]
+          
+          ## different data structure, inits, etc for each model (ugh)
+          if(m == 1){
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = y_h,
+                            s = s, s_h = s_h,
+                            L1 = L1, L2 = L2,
+                            U1 = U1, U2 = U2)
+            init.gen.loo <- function(){
+              list(
+                z = runif(S, 0, 1),
+                theta0 = rnorm(1, 0, 0.25),
+                rho = runif(1, -0.5, 0.5),
+                tau = runif(1, 0.1, 0.5),
+                p.low = runif(1, 0.38, 0.42),
+                p.high = runif(1, 0.78, 0.82)
+              )
+            }
+            
+            params.loo <- c("loglik_h")
+            ### Getting weird errors using jags.parallel
+            fit.loo <- do.call(jags.parallel,
+                               list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
+                                    model.file = here("R", "Models", "copas.mav.loo.txt"),
+                                    n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
+            # fit.loo <- jags(data = dat.loo, inits = init.gen.loo, parameters.to.save = params.loo,
+            #                 model.file = here("R", "Models", "copas.mav.loo.txt"),
+            #                 n.iter = 5000, n.chains = 4, n.burnin = 4000, DIC = FALSE)
+            
+            # occasionally jags can't handle the log-likelihood of real bad observations
+            # extract the regular likelihood instead, log it afterwards, seems to work
+            elpd_holdout <- elpd(log(fit.loo$BUGSoutput$sims.array))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          else if(m == 2){
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = y_h,
+                            s = s, s_h = s_h)
+            init.gen.loo <- function(){
+              list(
+                z = runif(S, 0, 1),
+                theta0 = rnorm(1, 0, 0.25),
+                rho = runif(1, -0.5, 0.5),
+                tau = runif(1, 0.1, 0.5),
+                gamma0 = runif(1, -1, 1),
+                gamma1 = runif(1, 0, max(s))
+              )
+            }
+            
+            params.loo <- c("loglik_h")
+            fit.loo <- do.call(jags.parallel,
+                               list(data = names(dat.loo), inits = init.gen.loo, parameters.to.save = params.loo,
+                                    model.file = here("R", "Models", "copas.bai.loo.txt"),
+                                    n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
+            # fit.loo <- jags(data = dat.loo, inits = init.gen.loo, parameters.to.save = params.loo,
+            #                 model.file = here("R", "Models", "copas.bai.loo.txt"),
+            #                 n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE)
+            
+            # occasionally jags can't handle the log-likelihood of real bad observations
+            # extract the regular likelihood instead, log it afterwards, seems to work
+            elpd_holdout <- elpd(log(fit.loo$BUGSoutput$sims.array))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout  
+          }
+          else if(m == 3){ ## two-side selection, p = .05
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
+                            steps = array(c(.05), dim = 1),
+                            M = 1)
+            fit.loo <- sampling(t.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
+            
+            elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          else if(m == 4){ ## two-side, p = .01, .1
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
+                            steps = c(0.1, 0.01),
+                            M = 2)
+            fit.loo <- sampling(t.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
+            
+            elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          else if(m == 5){ ## one-side, p = .025
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
+                            steps = array(c(.025), dim = 1),
+                            M = 1)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
+            
+            elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          else if(m == 6){ ## one-side, p = .025, .5
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
+                            steps = c(.5, .025),
+                            M = 2)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
+            
+            elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          else if(m == 7){ ## one-side, p = .005, .05
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
+                            steps = c(0.05, 0.005),
+                            M = 2)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
+            
+            elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          else if(m == 8){ ## one-side, p = .025, .1
+            dat.loo <- list(S = S, H = H,
+                            y = y, y_h = array(y_h, dim = 1),
+                            s = s, s_h = array(s_h, dim = 1),
+                            steps = c(0.1, 0.025),
+                            M = 2)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
+            
+            elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
+            
+            lpds[big_k_indices[[m]][i], m] <- elpd_holdout
+          }
+          
         }
       }
-        
+      
       ### having re-calculated elpd for problematic points, we calculate stacking weights
       ### using an S x M matrix of elpd's rather than with loo objects
       weights[j,] <- stacking_weights(lpds)
@@ -445,7 +450,7 @@ for(n in 4:4){
 
   func1.extreme.big <- list(stacked.summary, model.sums, weights, theta0, data.summary, funnel.plots, big_k)
   names(func1.extreme.big) <- c("stacked", "models", "weights", "theta0", "data.summary", "funnel.plots", "big.k")
-  # saveRDS(func1.extreme.big, file = here("R", "Results", paste("func1.extreme.big.", S.target[n], ".rds", sep = "")))
+  saveRDS(func1.extreme.big, file = here("R", "Results", paste("func1.extreme.big.", S.target[n], ".rds", sep = "")))
   
 }
 

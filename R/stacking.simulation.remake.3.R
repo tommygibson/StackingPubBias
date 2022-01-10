@@ -1,7 +1,7 @@
-####### First stacking simulation
-## mean effect theta = 0.5
+####### Third stacking simulation
+## mean effect theta = 0.1
 ## first selection function
-## moderate version
+## extreme version
 ## target sample sizes of 10, 20, 40, 80
 
 library(rstan)
@@ -39,6 +39,11 @@ tau <- 0.2
 S.full <- read_rds(here("R", "sim.1.4.initial.S.rds"))[3,]
 S.target <- c(10, 20, 40, 80)
 M <- 200
+
+t <- stan_model(here("R", "Models", "step.twoside.stan"))
+t.loo <- stan_model(here("R", "Models", "step.twoside.loo.stan"))
+o <- stan_model(here("R", "Models", "step.oneside.stan"))
+o.loo <- stan_model(here("R", "Models", "step.oneside.loo.stan"))
 
 for(n in 1:length(S.full)){
   
@@ -199,18 +204,18 @@ for(n in 1:length(S.full)){
                               model.file = here("R", "Models", "copas.jags.bai.adj.txt"),
                               n.iter = 4000, n.chains = 4, n.burnin = 3000, DIC = FALSE))
     
-    twoside.1 <- stan(file = here("R", "Models", "step.twoside.stan"), data = twoside.dat.1,
-                      iter = 2000, chains = 4)
-    twoside.2 <- stan(file = here("R", "Models", "step.twoside.stan"), data = twoside.dat.2,
-                      iter = 2000, chains = 4)
-    oneside.1 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.1,
-                      iter = 2000, chains = 4)
-    oneside.2 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.2,
-                      iter = 2000, chains = 4)
-    oneside.3 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.3,
-                      iter = 2000, chains = 4)
-    oneside.4 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.4,
-                      iter = 2000, chains = 4)
+    twoside.1 <- sampling(t, data = twoside.dat.1,
+                          iter = 2000, chains = 4, cores = 1)
+    twoside.2 <- sampling(t, data = twoside.dat.2,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.1 <- sampling(o, data = oneside.dat.1,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.2 <- sampling(o, data = oneside.dat.2,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.3 <- sampling(o, data = oneside.dat.3,
+                          iter = 2000, chains = 4, cores = 1)
+    oneside.4 <- sampling(o, data = oneside.dat.4,
+                          iter = 2000, chains = 4, cores = 1)
     
     
     model.sums[(9 * j - 8):(9 * j),] <- cbind(c("std", "Mavridis", "Bai", "twoside.1", "twoside.2", 
@@ -345,8 +350,8 @@ for(n in 1:length(S.full)){
                             s = s, s_h = array(s_h, dim = 1),
                             steps = array(c(.05), dim = 1),
                             M = 1)
-            fit.loo <- stan(file = here("R", "Models", "step.twoside.loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+            fit.loo <- sampling(t.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -358,8 +363,8 @@ for(n in 1:length(S.full)){
                             s = s, s_h = array(s_h, dim = 1),
                             steps = c(0.1, 0.01),
                             M = 2)
-            fit.loo <- stan(file = here("R", "Models", "step.twoside.loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+            fit.loo <- sampling(t.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -371,8 +376,8 @@ for(n in 1:length(S.full)){
                             s = s, s_h = array(s_h, dim = 1),
                             steps = array(c(.025), dim = 1),
                             M = 1)
-            fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -384,8 +389,8 @@ for(n in 1:length(S.full)){
                             s = s, s_h = array(s_h, dim = 1),
                             steps = c(.5, .025),
                             M = 2)
-            fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -397,8 +402,8 @@ for(n in 1:length(S.full)){
                             s = s, s_h = array(s_h, dim = 1),
                             steps = c(0.05, 0.005),
                             M = 2)
-            fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
@@ -410,8 +415,8 @@ for(n in 1:length(S.full)){
                             s = s, s_h = array(s_h, dim = 1),
                             steps = c(0.1, 0.025),
                             M = 2)
-            fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                            iter = 2000, chains = 4)
+            fit.loo <- sampling(o.loo, data = dat.loo,
+                                iter = 2000, chains = 4, cores = 1)
             
             elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
             
