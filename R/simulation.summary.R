@@ -5,179 +5,302 @@ library(ggplot2)
 library(here)
 library(xtable)
 
-sim1 <- readRDS(here("R", "Results", "sim.extreme.big.15.rds"))
-sim2 <- readRDS(here("R", "Results", "sim.extreme.big.30.rds"))
-sim3 <- readRDS(here("R", "Results", "sim.extreme.big.60.rds"))
-sim4 <- readRDS(here("R", "Results", "sim.moderate.big.15.rds"))
-sim5 <- readRDS(here("R", "Results", "sim.moderate.big.30.rds"))
-sim6 <- readRDS(here("R", "Results", "sim.moderate.big.60.rds"))
-sim7 <- readRDS(here("R", "Results", "sim.extreme.small.15.rds"))
-sim8 <- readRDS(here("R", "Results", "sim.extreme.small.30.rds"))
-sim9 <- readRDS(here("R", "Results", "sim.extreme.small.60.rds"))
+### selection function 1, extreme selection, theta = 0.5
+sim1.10 <- readRDS(here("R", "Results", "func1.extreme.big.10.rds"))
+sim1.20 <- readRDS(here("R", "Results", "func1.extreme.big.20.rds"))
+sim1.40 <- readRDS(here("R", "Results", "func1.extreme.big.40.rds"))
+sim1.80 <- readRDS(here("R", "Results", "func1.extreme.big.80.rds"))
 
-sim1$stacked <- sim1$stacked %>%
+### selection function 1, moderate selection, theta = 0.5
+sim2.10 <- readRDS(here("R", "Results", "func1.moderate.big.10.rds"))
+sim2.20 <- readRDS(here("R", "Results", "func1.moderate.big.20.rds"))
+sim2.40 <- readRDS(here("R", "Results", "func1.moderate.big.40.rds"))
+sim2.80 <- readRDS(here("R", "Results", "func1.moderate.big.80.rds"))
+
+### selection function 1, extreme selection, theta = 0.1
+sim3.10 <- readRDS(here("R", "Results", "func1.extreme.small.10.rds"))
+sim3.20 <- readRDS(here("R", "Results", "func1.extreme.small.20.rds"))
+sim3.40 <- readRDS(here("R", "Results", "func1.extreme.small.40.rds"))
+sim3.80 <- readRDS(here("R", "Results", "func1.extreme.small.80.rds"))
+
+### selection function 1, moderate selection, theta = 0.1
+sim4.10 <- readRDS(here("R", "Results", "func1.moderate.small.10.rds"))
+sim4.20 <- readRDS(here("R", "Results", "func1.moderate.small.20.rds"))
+sim4.40 <- readRDS(here("R", "Results", "func1.moderate.small.40.rds"))
+sim4.80 <- readRDS(here("R", "Results", "func1.moderate.small.80.rds"))
+
+### put stacked info into same format as other model info, including iteration number
+sim1.10$stacked <- sim1.10$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:200)
-sim2$stacked <- sim2$stacked %>%
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 10)
+sim1.20$stacked <- sim1.20$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:200)
-sim3$stacked <- sim3$stacked %>%
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 20)
+sim1.40$stacked <- sim1.40$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:200)
-sim4$stacked <- sim4$stacked %>%
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 40)
+sim1.80$stacked <- sim1.80$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:200)
-sim5$stacked <- sim5$stacked %>%
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 80)
+
+sim2.10$stacked <- sim2.10$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:200)
-sim6$stacked <- sim6$stacked %>%
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 10)
+sim2.20$stacked <- sim2.20$stacked %>%
   mutate(model = "stacked",
-         iteration = 1:200)
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 20)
+sim2.40$stacked <- sim2.40$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 40)
+sim2.80$stacked <- sim2.80$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 80)
+
+sim3.10$stacked <- sim3.10$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 10)
+sim3.20$stacked <- sim3.20$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 20)
+sim3.40$stacked <- sim3.40$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 40)
+sim3.80$stacked <- sim3.80$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 80)
+
+sim4.10$stacked <- sim4.10$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 10)
+sim4.20$stacked <- sim4.20$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 20)
+sim4.40$stacked <- sim4.40$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 40)
+sim4.80$stacked <- sim4.80$stacked %>%
+  mutate(model = "stacked",
+         iteration = 1:200,
+         theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 80)
+
 
 
 # convert columns to correct data type
-sim1$models <- sim1$models %>%
-  type_convert()
-sim2$models <- sim2$models %>%
-  type_convert() 
-sim3$models <- sim3$models %>%
-  type_convert()
-sim4$models <- sim4$models %>%
-  type_convert()
-sim5$models <- sim5$models %>%
-  type_convert() 
-sim6$models <- sim6$models %>%
-  type_convert()
+sim1.10$models <- sim1.10$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 10)
+sim1.20$models <- sim1.20$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 20)
+sim1.40$models <- sim1.40$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 40)
+sim1.80$models <- sim1.80$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Extreme",
+         Avg.sample = 80)
+
+sim2.10$models <- sim2.10$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 10)
+sim2.20$models <- sim2.20$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 20)
+sim2.40$models <- sim2.40$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 40)
+sim2.80$models <- sim2.80$models %>%
+  type_convert() %>%
+  mutate(theta = 0.5,
+         Selection = "Moderate",
+         Avg.sample = 80)
+
+sim3.10$models <- sim3.10$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 10)
+sim3.20$models <- sim3.20$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 20)
+sim3.40$models <- sim3.40$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 40)
+sim3.80$models <- sim3.80$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Extreme",
+         Avg.sample = 80)
+
+sim4.10$models <- sim4.10$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 10)
+sim4.20$models <- sim4.20$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 20)
+sim4.40$models <- sim4.40$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 40)
+sim4.80$models <- sim4.80$models %>%
+  type_convert() %>%
+  mutate(theta = 0.1,
+         Selection = "Moderate",
+         Avg.sample = 80)
 
 
+##### Put all the simulations into a single dataframe
+sim.all <- bind_rows(sim1.10$stacked, sim1.10$models, sim1.20$stacked, sim1.20$models,
+                     sim1.40$stacked, sim1.40$models, sim1.80$stacked, sim1.80$models,
+                     sim2.10$stacked, sim2.10$models, sim2.20$stacked, sim2.20$models,
+                     sim2.40$stacked, sim2.40$models, sim2.80$stacked, sim2.80$models,
+                     sim3.10$stacked, sim3.10$models, sim3.20$stacked, sim3.20$models,
+                     sim3.40$stacked, sim3.40$models, sim3.80$stacked, sim3.80$models,
+                     sim4.10$stacked, sim4.10$models, sim4.20$stacked, sim4.20$models,
+                     sim4.40$stacked, sim4.40$models, sim4.80$stacked, sim4.80$models) %>%
+  arrange(theta, Selection, Avg.sample, iteration)
 
-all.models.1 <- bind_rows(sim1$stacked, sim1$models) %>%
-  arrange(iteration)
-all.models.2 <- bind_rows(sim2$stacked, sim2$models) %>%
-  arrange(iteration)
-all.models.3 <- bind_rows(sim3$stacked, sim3$models) %>%
-  arrange(iteration)
-all.models.4 <- bind_rows(sim4$stacked, sim4$models) %>%
-  arrange(iteration)
-all.models.5 <- bind_rows(sim5$stacked, sim5$models) %>%
-  arrange(iteration)
-all.models.6 <- bind_rows(sim6$stacked, sim6$models) %>%
-  arrange(iteration)
-
-# this is from when we were throwing out iterations where pareto k's were big
-# baddies.1 <- unique(all.models.1$iteration[is.na(all.models.1$est.mean) & all.models.1$simulation==1])
-# baddies.2 <- unique(all.models.1$iteration[is.na(all.models.1$est.mean) & all.models.1$simulation==2])
-
-sim.1.summary <- all.models.1 %>%
-                   group_by(model) %>%
-                   summarize(bias = mean(as.numeric(est.mean)) - sim1$theta0,
+### create summary stuff for each model/simulation combo
+summary.all <- sim.all %>%
+                   group_by(theta, Selection, Avg.sample, model) %>%
+                   summarize(bias = mean(as.numeric(est.mean)) - theta,
                              avg.sd = mean(as.numeric(sd)),
-                             cover = sum(ci.lower < sim1$theta0 & ci.upper > sim1$theta0) / n(),
+                             cover = sum(ci.lower < theta & ci.upper > theta) / n(),
                              length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-                             rmse = sqrt(mean((as.numeric(est.mean) - sim1$theta0)^2)),
-                             base.studies = 15) %>%
-  arrange(abs(bias))
+                             rmse = sqrt(mean((as.numeric(est.mean) - theta)^2))) %>%
+  arrange(theta, Selection, Avg.sample)
 
-sim.2.summary <- all.models.2 %>%
-                   group_by(model) %>%
-                   summarize(bias = mean(as.numeric(est.mean)) - sim2$theta0,
-                             avg.sd = mean(as.numeric(sd)),
-                             cover = sum(ci.lower < sim2$theta0 & ci.upper > sim2$theta0) / n(),
-                             length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-                             rmse = sqrt(mean((as.numeric(est.mean) - sim2$theta0)^2)),
-                             base.studies = 30) %>%
-  arrange(abs(bias))
-
-sim.3.summary <- all.models.3 %>%
-                   group_by(model) %>%
-                   summarize(bias = mean(as.numeric(est.mean)) - sim3$theta0,
-                             avg.sd = mean(as.numeric(sd)),
-                             cover = sum(ci.lower < sim3$theta0 & ci.upper > sim3$theta0) / n(),
-                             length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-                             rmse = sqrt(mean((as.numeric(est.mean) - sim3$theta0)^2)),
-                             base.studies = 60) %>%
-  arrange(abs(bias))
-
-sim.4.summary <- all.models.4 %>%
-  group_by(model) %>%
-  summarize(bias = mean(as.numeric(est.mean)) - sim4$theta0,
-            avg.sd = mean(as.numeric(sd)),
-            cover = sum(ci.lower < sim4$theta0 & ci.upper > sim4$theta0) / n(),
-            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-            rmse = sqrt(mean((as.numeric(est.mean) - sim4$theta0)^2)),
-            base.studies = 15)
-
-sim.5.summary <- all.models.5 %>%
-  group_by(model) %>%
-  summarize(bias = mean(as.numeric(est.mean)) - sim5$theta0,
-            avg.sd = mean(as.numeric(sd)),
-            cover = sum(ci.lower < sim5$theta0 & ci.upper > sim5$theta0) / n(),
-            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-            rmse = sqrt(mean((as.numeric(est.mean) - sim5$theta0)^2)),
-            base.studies = 30)
-
-sim.6.summary <- all.models.6 %>%
-  group_by(model) %>%
-  summarize(bias = mean(as.numeric(est.mean)) - sim6$theta0,
-            avg.sd = mean(as.numeric(sd)),
-            cover = sum(ci.lower < sim6$theta0 & ci.upper > sim6$theta0) / n(),
-            length = mean(as.numeric(ci.upper) - as.numeric(ci.lower)),
-            rmse = sqrt(mean((as.numeric(est.mean) - sim6$theta0)^2)),
-            base.studies = 60)
-
-
-
-extreme.big.summary <- bind_rows(sim.1.summary, sim.2.summary, sim.3.summary)
-moderate.big.summary <- bind_rows(sim.4.summary, sim.5.summary, sim.6.summary)
-
-extreme.big.bias <- extreme.big.summary %>%
-  ggplot(aes(x = as.factor(base.studies), y = bias, group = model, color = model,
-             linetype = (model == "stacked"))) +
-  geom_point() + 
+plot.bias <- summary.all %>%
+  ggplot(mapping = aes(x = as.factor(Avg.sample), y = abs(bias), group = model, color = model,
+                       linetype = (model == "stacked"))) +
+  geom_point() +
   geom_line() +
-  scale_linetype_manual(values = c(1, 4)) +
-  scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
-                                "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
-                                "Two-sided (1)", "Two-sided (2)")) +
-  guides(linetype = FALSE) +
-  theme(plot.title = element_text(size = 12)) +
-  theme_bw() +
   geom_hline(yintercept = 0, linetype = 2, color = "black") +
-  labs(x = "Base studies",
-       y = "Bias")
-
-
-extreme.big.rmse <- extreme.big.summary %>%
-  ggplot(aes(x = as.factor(base.studies), y = rmse, group = model, color = model,
-             linetype = (model == "stacked"))) +
-  geom_point() + 
-  geom_line() +
-  scale_linetype_manual(values = c(1, 4)) +
+  facet_wrap( ~ Selection + theta, scales = "free", labeller = label_both) +
+  scale_linetype_manual(values = c(1, 3)) +
   scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
                                   "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
-                                  "Two-sided (1)", "Two-sided (2)")) +
-  guides(linetype = FALSE) +
+                                  "Two-sided (1)", "Two-sided (2)"),
+                       name = "Model") +
   theme_bw() +
-  labs(x = "Base studies",
-       y = "RMSE")
-
-moderate.big.summary %>%
-  ggplot(aes(x = as.factor(base.studies), y = bias, group = model, color = model,
-             linetype = (model == "stacked"))) +
-  geom_point() + 
+  guides(linetype = "none") +
+  labs(x = "Average sample size", y = "|bias|") +
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10))
+  
+plot.rmse <- summary.all %>%
+  ggplot(mapping = aes(x = as.factor(Avg.sample), y = rmse, group = model, color = model,
+                       linetype = (model == "stacked"))) +
+  geom_point() +
   geom_line() +
-  scale_linetype_manual(values = c(1, 4)) +
+  facet_wrap( ~ Selection + theta, scales = "free", labeller = label_both) +
+  scale_linetype_manual(values = c(1, 3)) +
   scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
-                                "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
-                                "Two-sided (1)", "Two-sided (2)")) +
-  guides(linetype = FALSE) +
-  theme_bw()
+                                  "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
+                                  "Two-sided (1)", "Two-sided (2)"),
+                       name = "Model") +
+  theme_bw() +
+  guides(linetype = "none") +
+  labs(x = "Average sample size", y = "RMSE") +
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10))
+
+plot.coverage <- summary.all %>%
+  ggplot(mapping = aes(x = as.factor(Avg.sample), y = cover, group = model, color = model,
+                       linetype = (model == "stacked"))) +
+  geom_point() +
+  geom_line() +
+  facet_wrap( ~ Selection + theta, scales = "free", labeller = label_both) +
+  scale_linetype_manual(values = c(1, 3)) +
+  scale_color_discrete(labels = c("Bai", "Mavridis", "One-sided (1)", "One-sided (2)",
+                                  "One-sided (3)", "One-sided (4)", "Stacked", "Standard",
+                                  "Two-sided (1)", "Two-sided (2)"),
+                       name = "Model") +
+  theme_bw() +
+  guides(linetype = "none") +
+  labs(x = "Average sample size", y = "95% interval coverage") +
+  geom_hline(yintercept = 0.95, linetype = 2, color = "black") +
+  theme(strip.text.x = element_text(size = 10),
+        strip.text.y = element_text(size = 10))
 
 
-ggsave(here("R", "Results", "extreme_big_rmse.pdf"), plot = extreme.big.rmse, 
-       width = 5, height = 4, units = "in")
-ggsave(here("R", "Results", "extreme_big_bias.pdf"), plot = extreme.big.bias, 
-       width = 5, height = 4, units = "in")
+# 
+# ggsave(here("Manuscript", "plot.rmse.pdf"), plot = plot.rmse, 
+#        width = 6, height = 5, units = "in")
+# ggsave(here("Manuscript", "plot.bias.pdf"), plot = plot.bias, 
+#        width = 6, height = 5, units = "in")
+# ggsave(here("Manuscript", "plot.coverage.pdf"), plot = plot.coverage, 
+#        width = 6, height = 5, units = "in")
+
 ### Generate latex tables
 print(xtable(sim.1.summary[,-7], digits = 3), include.rownames = FALSE)
 print(xtable(sim.2.summary[,-7], digits = 3), include.rownames = FALSE)
