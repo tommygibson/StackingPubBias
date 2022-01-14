@@ -8,7 +8,15 @@ library(loo)
 library(RobustBayesianCopas)
 library(gghighlight)
 library(metafor)
+library(RColorBrewer)
 
+source(here("R", "stacking.functions.R"))
+
+t <- stan_model(here("R", "Models", "step.twoside.stan"))
+o <- stan_model(here("R", "Models", "step.oneside.stan"))
+
+t.loo <- stan_model(here("R", "Models", "step.twoside.loo.stan"))
+o.loo <- stan_model(here("R", "Models", "step.oneside.loo.stan"))
 ### Data setup for each model
 
 stack_analysis <- function(y, s){
@@ -93,7 +101,7 @@ stack_analysis <- function(y, s){
   std <- do.call(jags.parallel,
                  list(data = names(bai.dat), inits = init.gen.std, 
                       parameters.to.save = c("theta0"), model.file = here("R", "Models", "std.meta.txt"),
-                      n.iter = 10000, n.burnin = 8000, n.thin = 1, n.chains = 4, DIC = FALSE))
+                      n.iter = 20000, n.burnin = 16000, n.thin = 2, n.chains = 4, DIC = FALSE))
   bai <- do.call(jags.parallel,
                  list(data = bai.dat, inits = init.gen.bai, 
                       parameters.to.save = params, model.file = here("R", "Models", "copas.jags.bai.adj.txt"),
@@ -102,19 +110,13 @@ stack_analysis <- function(y, s){
                  list(data = mav.dat, inits = init.gen.mav, 
                       parameters.to.save = params, model.file = here("R", "Models", "copas.jags.mavridis.adj.txt"),
                       n.iter = 20000, n.burnin = 16000, n.thin = 2, n.chains = 4, DIC = FALSE))
-  
-  twoside.1 <- stan(file = here("R", "Models", "step.twoside.stan"), data = twoside.dat.1,
-                    iter = 4000, chains = 4)
-  twoside.2 <- stan(file = here("R", "Models", "step.twoside.stan"), data = twoside.dat.2,
-                    iter = 4000, chains = 4)
-  oneside.1 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.1,
-                    iter = 4000, chains = 4)
-  oneside.2 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.2,
-                    iter = 4000, chains = 4)
-  oneside.3 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.3,
-                    iter = 4000, chains = 4)
-  oneside.4 <- stan(file = here("R", "Models", "step.twoside.stan"), data = oneside.dat.4,
-                    iter = 4000, chains = 4)
+
+  twoside.1 <- sampling(t, data = twoside.dat.1, iter = 4000, chains = 4, cores = 4)
+  twoside.2 <- sampling(t, data = twoside.dat.2, iter = 4000, chains = 4, cores = 4)
+  oneside.1 <- sampling(o, data = oneside.dat.1, iter = 4000, chains = 4, cores = 4)
+  oneside.2 <- sampling(o, data = oneside.dat.2, iter = 4000, chains = 4, cores = 4)
+  oneside.3 <- sampling(o, data = oneside.dat.3, iter = 4000, chains = 4, cores = 4)
+  oneside.4 <- sampling(o, data = oneside.dat.4, iter = 4000, chains = 4, cores = 4)
   
   
   loglik <- list()
@@ -143,7 +145,7 @@ stack_analysis <- function(y, s){
   
   ### if there aren't any big pareto k's then we can just stack!
   if(sum(num_big_k) == 0){
-    weights[j,] <- loo_model_weights(loo_list, method = 'stacking', r_eff_list = r_eff)
+    weights <- loo_model_weights(loo_list, method = 'stacking', r_eff_list = r_eff)
   }
   
   else{
@@ -230,8 +232,9 @@ stack_analysis <- function(y, s){
                           s = s, s_h = array(s_h, dim = 1),
                           steps = array(c(.05), dim = 1),
                           M = 1)
-          fit.loo <- stan(file = here("R", "Models", "step.twoside.loo.stan"), data = dat.loo,
-                          iter = 4000, chains = 4, cores = 1)
+
+          fit.loo <- sampling(t.loo, data = dat.loo,
+                          iter = 4000, chains = 4)
           
           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
           
@@ -243,8 +246,9 @@ stack_analysis <- function(y, s){
                           s = s, s_h = array(s_h, dim = 1),
                           steps = c(0.1, 0.01),
                           M = 2)
-          fit.loo <- stan(file = here("R", "Models", "step.twoside.loo.stan"), data = dat.loo,
-                          iter = 4000, chains = 4, cores = 1)
+
+          fit.loo <- sampling(t.loo, data = dat.loo,
+                          iter = 4000, chains = 4)
           
           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
           
@@ -256,8 +260,9 @@ stack_analysis <- function(y, s){
                           s = s, s_h = array(s_h, dim = 1),
                           steps = array(c(.025), dim = 1),
                           M = 1)
-          fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                          iter = 4000, chains = 4, cores = 1)
+
+          fit.loo <- sampling(o.loo, data = dat.loo,
+                          iter = 4000, chains = 4)
           
           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
           
@@ -269,8 +274,9 @@ stack_analysis <- function(y, s){
                           s = s, s_h = array(s_h, dim = 1),
                           steps = c(.5, .025),
                           M = 2)
-          fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                          iter = 4000, chains = 4, cores = 1)
+
+          fit.loo <- sampling(o.loo, data = dat.loo,
+                          iter = 4000, chains = 4)
           
           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
           
@@ -282,8 +288,9 @@ stack_analysis <- function(y, s){
                           s = s, s_h = array(s_h, dim = 1),
                           steps = c(0.05, 0.005),
                           M = 2)
-          fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                          iter = 4000, chains = 4, cores = 1)
+
+          fit.loo <- sampling(o.loo, data = dat.loo,
+                          iter = 4000, chains = 4)
           
           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
           
@@ -295,8 +302,9 @@ stack_analysis <- function(y, s){
                           s = s, s_h = array(s_h, dim = 1),
                           steps = c(0.1, 0.025),
                           M = 2)
-          fit.loo <- stan(file = here("R", "Models", "step.oneside.loo.stan"), data = dat.loo,
-                          iter = 4000, chains = 4, cores = 1)
+
+          fit.loo <- sampling(o.loo, data = dat.loo,
+                          iter = 4000, chains = 4)
           
           elpd_holdout <- elpd(extract_log_lik(fit.loo, parameter_name = "loglik_h", merge_chains = FALSE))$estimates[1]
           
@@ -329,8 +337,10 @@ stack_analysis <- function(y, s){
   sims <- unlist(sims)
   
   # summary
-  models.sums <- cbind.data.frame(c("std", "Mavridis", "Bai", "twoside.1", "twoside.2", "oneside.1", "oneside.2", "oneside.3", "oneside.4", "stacked"),
-                            rbind(std$BUGSoutput$summary[c(1:3, 7)],
+  models.sums <- cbind.data.frame(c("Standard", "Stacked", "Mavridis", "Bai", "Two-side (1)", "Two-side (2)", 
+                                    "One-side (1)", "One-side (2)", "One-side (3)", "One-side (4)"),
+                            rbind(std$BUGSoutput$summary[c(1:3, 7)], ## standard model
+                                  summary.func(sims), ## stacked model
                                   mav$BUGSoutput$summary[(S.full + 1), c(1:3, 7)], #1-3, 7 are mean, sd, 2.5, 97.5
                                   bai$BUGSoutput$summary[(S.full + 1), c(1:3, 7)],
                                   summary(twoside.1, pars = "theta")$summary[c(1, 3, 4, 8)],
@@ -338,18 +348,18 @@ stack_analysis <- function(y, s){
                                   summary(oneside.1, pars = "theta")$summary[c(1, 3, 4, 8)],
                                   summary(oneside.2, pars = "theta")$summary[c(1, 3, 4, 8)],
                                   summary(oneside.3, pars = "theta")$summary[c(1, 3, 4, 8)],
-                                  summary(oneside.4, pars = "theta")$summary[c(1, 3, 4, 8)],
-                                  summary.func(sims)))
-  names(models.sums) <- c("Model", "Mean", "SD", "2.5%", "97.5%")
+                                  summary(oneside.4, pars = "theta")$summary[c(1, 3, 4, 8)]
+                                  ),
+                            c(NA, NA, round(weights, 3)))
+  names(models.sums) <- c("Model", "Mean", "SD", "2.5%", "97.5%", "Stacking Weight")
   
   # posterior samples for each model
-  all.sims <- cbind.data.frame(c(std$BUGSoutput$sims.list$theta0, mav$BUGSoutput$sims.list$theta0, bai$BUGSoutput$sims.list$theta0,
+  all.sims <- cbind.data.frame(c(std$BUGSoutput$sims.list$theta0, sims[1:length(mav$BUGSoutput$sims.list$theta0)],
+                                 mav$BUGSoutput$sims.list$theta0, bai$BUGSoutput$sims.list$theta0,
                                  rstan::extract(twoside.1)$theta, rstan::extract(twoside.2)$theta, rstan::extract(oneside.1)$theta,
-                                 rstan::extract(oneside.2)$theta, rstan::extract(oneside.3)$theta, rstan::extract(oneside.4)$theta,
-                                 sims),
-                               c(rep(c("standard", "Mavridis", "Bai", "twoside.1", "twoside.2", 
-                                     "oneside.1", "oneside.2", "oneside.3", "oneside.4"), each = length(mav$BUGSoutput$sims.list$theta0)),
-                                 rep("stacked", length(sims))))
+                                 rstan::extract(oneside.2)$theta, rstan::extract(oneside.3)$theta, rstan::extract(oneside.4)$theta),
+                               c(rep(c("Standard", "Stacked", "Mavridis", "Bai", "Two-side (1)", "Two-side (2)", 
+                                       "One-side (1)", "One-side (2)", "One-side (3)", "One-side (4)"), each = length(mav$BUGSoutput$sims.list$theta0))))
                     
   names(all.sims) <- c("theta", "model")
   
@@ -397,54 +407,74 @@ numex.3 <- stack_analysis(y3, s3)
 ## plots
 
 hackshaw.post <- numex.1$posterior.samples %>%
-  mutate(weight = c(rep(numex.1$Weights, each = 8000), rep(1, 8000))) %>%
-  ggplot(aes(x = theta, color = model, linetype = (model == "stacked"), size = model == "stacked")) + 
+  mutate(weight1 = c(rep(1, 8000 * 2), rep(numex.1$Weights, each = 8000))) %>%
+  ggplot(aes(x = theta, color = model, linetype = (model == "Stacked"), size = model == "Stacked")) + 
   geom_density() +
-  gghighlight(weight > 0.01) +
-  xlim(c(-0.15, 0.4)) +
+  gghighlight(weight1 > 0.01) +
   scale_linetype_manual(values = c(1, 2)) +
   scale_size_manual(values = c(.25, .75)) +
-  scale_color_manual(values = c("blue", "green", "red"),
-                     labels = c("Mavridis", "Stacked", "Two-side (1)")) +
+  # scale_color_brewer(palette = "Dark2",
+  #                    labels = c("Mavridis", "One-side (2)", "One-side (4)", "Stacked", "Standard")) +
+  scale_color_manual(name = "Model",
+                     values = c("turquoise2", "firebrick2", "orchid1", "springgreen2", "black")) +
+                     #labels = c("Mavridis", "One-side (2)", "One-side (4)", "Stacked", "Standard")) +
   theme_bw() +
-  labs(title = "Log-relative risk of cancer from second-hand smoke",
-       x = "log(RR)") +
-  guides(size = FALSE, linetype = FALSE)
+  xlim(c(-.25, 0.45)) +
+  labs(x = "log(RR)") +
+  guides(size = "none", linetype = "none")
 
 bornmann.post <- numex.2$posterior.samples %>%
-  mutate(weight = c(rep(numex.2$Weights, each = 8000), rep(1, 8000))) %>%
-  ggplot(aes(x = theta, color = model, linetype = (model == "stacked"), size = (model == "stacked"))) + 
+  mutate(weight1 = c(rep(1, 8000 * 2), rep(numex.2$Weights, each = 8000))) %>%
+  ggplot(aes(x = theta, color = model, linetype = (model == "Stacked"), size = model == "Stacked")) + 
   geom_density() +
-  gghighlight(weight > 0.01) +
+  gghighlight(weight1 > 0.01) +
   theme_bw() +
   scale_linetype_manual(values = c(1, 2)) +
   scale_size_manual(values = c(.25, .75)) +
-  scale_color_manual(name = "Model", values = c("blue", "red", "turquoise1", "green"),
-                     labels = c("Bai", "Mavridis", "One-side (2)", "Stacked")) +
-  labs(title = "Posterior distributions for log-odds ratio of grant acceptance by gender",
-       x = "log(OR)") +
-  guides(size = FALSE, linetype = FALSE)
+  #scale_color_brewer(palette = "Dark2") +
+                     #labels = c("Mavridis", "One-side (2)", "One-side (4)", "Stacked", "Standard")) +
+  scale_color_manual(name = "Model", 
+                     values = c("turquoise2", "firebrick2", "springgreen2", "black"),
+                     labels = c("Bai", "Mavridis", "Stacked", "Standard")) +
+  labs(x = "log(OR)") +
+  xlim(c(-.15, .2)) +
+  guides(size = "none", linetype = "none")
 
 landenberger.post <- numex.3$posterior.samples %>%
-  mutate(weight = c(rep(numex.2$Weights, each = 8000), rep(1, 8000))) %>%
-  ggplot(aes(x = theta, color = model, linetype = (model == "stacked"), size = (model == "stacked"))) + 
+  mutate(weight1 = c(rep(1, 8000 * 2), rep(numex.3$Weights, each = 8000))) %>%
+  ggplot(aes(x = theta, color = model, linetype = (model == "Stacked"), size = model == "Stacked")) + 
   geom_density() +
-  gghighlight(weight > 0.01) +
+  gghighlight(weight1 > 0.01) +
   theme_bw() +
   scale_linetype_manual(values = c(1, 2)) +
   scale_size_manual(values = c(.25, .75)) +
-  scale_color_manual(values = c("blue", "red", "turquoise1", "green"),
-                     labels = c("Bai", "Mavridis", "One-side (2)", "Stacked")) +
-  labs(title = "Log-odds ratio of recidivism by CBT/no intervention",
-       x = "log(OR)") +
-  guides(size = FALSE, linetype = FALSE)
+  scale_color_manual(name = "Model",
+                     values = c("turquoise2", "firebrick2", "orchid1", "springgreen2", "black"),
+                     labels = c("Bai", "Mavridis", "One-side (2)", "Stacked", "Standard")) +
+  labs(x = "log(OR)") +
+  xlim(c(-.25, .75)) +
+  guides(size = "none", linetype = "none")
 
 ## save plots
-  ggsave(here("R", "Results", "hackshaw_post.pdf"), plot = hackshaw.post,
-         width = 5, height = 4, units = "in")
-  ggsave(here("R", "Results", "bornmann_post.pdf"), plot = bornmann.post,
-         width = 5, height = 4, units = "in")
-  ggsave(here("R", "Results", "landenberger_post.pdf"), plot = landenberger.post,
-         width = 5, height = 4, units = "in")
+  ggsave(here("Manuscript", "hackshaw_post.pdf"), plot = hackshaw.post,
+         width = 6.5, height = 5, units = "in")
+  ggsave(here("Manuscript", "bornmann_post.pdf"), plot = bornmann.post,
+         width = 6.5, height = 5, units = "in")
+  ggsave(here("Manuscript", "landenberger_post.pdf"), plot = landenberger.post,
+         width = 6.5, height = 5, units = "in")
+  
+### Tables
+  numex.1$Summary %>%
+    xtable(digits = 3) %>%
+    print(include.rownames = FALSE)
+  
+  numex.2$Summary %>%
+    xtable(digits = 3) %>%
+    print(include.rownames = FALSE)
+  
+  numex.3$Summary %>%
+    xtable(digits = 3) %>%
+    print(include.rownames = FALSE)
+  
   
 

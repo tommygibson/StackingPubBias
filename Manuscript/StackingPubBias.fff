@@ -7,38 +7,56 @@ Selection probability is constant after $p=0.5$.}
 \efloatseparator
  
 \begin{figure}
-\includegraphics[height = 4in, width = 5in]{extreme_big_bias.pdf}
-\caption{Plot of average bias from 200 simulation replications with from Selection mechanism 1 with extreme selection and $\theta = 0.5$.}
-\label{fig:func1_extreme_big_bias}
+\includegraphics[height = 6in, width = 6.5in]{sim1_plot_bias.pdf}
+\caption{Absolute value of bias from 200 simulation replications using Selection mechanism 1. \\
+      Left and right panels have $\theta=0.1$ and $\theta = 0.5$, respectively. \\
+      Top and bottom panels have extreme or moderate selection severity. \\
+      The blue dashed line represents the stacked model.}
+\label{fig:sim1_plot_bias}
 \end{figure}
 \efloatseparator
  
 \begin{figure}
-\includegraphics[height = 4in, width = 5in]{extreme_big_rmse.pdf}
-\caption{Plot of root(MSE) from 200 simulation replications with from Selection mechanism 1 with extreme selection and $\theta = 0.5$.}
-\label{fig:func1_extreme_big_rmse}
+\includegraphics[height = 6in, width = 6.5in]{sim1_plot_rmse.pdf}
+\caption{RMSE from 200 simulation replications using Selection mechanism 1. \\
+      Left and right panels have $\theta=0.1$ and $\theta = 0.5$, respectively. \\
+      Top and bottom panels have extreme or moderate selection severity. \\
+      The blue dashed line represents the stacked model.}
+\label{fig:sim1_plot_rmse}
 \end{figure}
 \efloatseparator
  
 \begin{figure}
-\includegraphics[height = 4in, width = 5in]{hackshaw_post.pdf}
+\includegraphics[height = 6in, width = 6.5in]{sim1_plot_coverage.pdf}
+\caption{Proportion of 95\% intervals covering the true mean $\theta$ from 200 simulation replications using Selection mechanism 1. \\
+      Left and right panels have $\theta=0.1$ and $\theta = 0.5$, respectively. \\
+      Top and bottom panels have extreme or moderate selection severity. \\
+      The blue dashed line represents the stacked model.}
+\label{fig:sim1_plot_coverage}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\includegraphics[height = 5in, width = 6.5in]{hackshaw_post.pdf}
 \caption{Posterior distributions of $\theta$ for each selection model using lung cancer data from \citet{hackshaw1997}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Black line is the standard meta-analysis.
 Dashed line shows stacked posterior distribution.}
 \label{fig:hackshaw}
 \end{figure}
 \efloatseparator
  
 \begin{figure}
-\includegraphics[height = 4in, width = 5in]{bornmann_post.pdf}
-\caption{Posterior distributions of $\theta$ for each selection model using grant application data from \citet{bornmann2007gender}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+\includegraphics[height = 5in, width = 6.5in]{bornmann_post.pdf}
+\caption{Posterior distributions of $\theta$ for each selection model using grant application data from \citet{bornmann2007gender}. Colored lines show models where stacking weight was at least 0.01 (1\%). Black line is the standard meta-analysis.
 Dashed line is stacked posterior distribution of $\theta$.}
 \label{fig:bornmann}
 \end{figure}
 \efloatseparator
  
 \begin{figure}
-\includegraphics[height = 4in, width = 5in]{landenberger_post.pdf}
+\includegraphics[height = 5in, width = 6.5in]{landenberger_post.pdf}
 \caption{Posterior distributions of $\theta$ for each selection model using recidivism data from \citet{landenberger2005recidivism}. Colored lines show models where stacking weight was at least 0.01 (1\%).
+Black line is the standard meta-analysis.
 Dashed line shows stacked posterior distribution.}
 \label{fig:landenberger}
 \end{figure}

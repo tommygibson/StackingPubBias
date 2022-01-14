@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  5 JAN 2022 16:26
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016) (preloaded format=pdflatex 2016.5.22)  12 JAN 2022 13:31
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -431,23 +431,23 @@ File: omscmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 264.
  [14] [15]
+[16]
 \openout4 = `StackingPubBias.ttt'.
 
-
-(StackingPubBias.ttt)
+ (StackingPubBias.ttt)
 \openout3 = `StackingPubBias.fff'.
 
- (StackingPubBias.fff) (./StackingPubBias.bbl [16]
-[17] [18] [19]) AED endfloat: Processing end Figures and Tables [20]
+ (StackingPubBias.fff) (./StackingPubBias.bbl
+[17] [18] [19] [20]) AED endfloat: Processing end Figures and Tables [21]
 (./StackingPubBias.lof)
 \tf@lof=\write5
 \openout5 = `StackingPubBias.lof'.
 
- [21
+ [22
 
 
 ] (./StackingPubBias.fff
-<SM1.pdf, id=83, 433.62pt x 289.08pt>
+<SM1.pdf, id=87, 433.62pt x 289.08pt>
 File: SM1.pdf Graphic file (type pdf)
  <use SM1.pdf>
 Package pdftex.def Info: SM1.pdf used on input line 2.
@@ -457,45 +457,79 @@ Overfull \hbox (7.24509pt too wide) in paragraph at lines 2--4
 [][] 
  []
 
-[22 <./SM1.pdf>] <extreme_big_bias.pdf, id=92, 361.35pt x 289.08pt>
-File: extreme_big_bias.pdf Graphic file (type pdf)
+[23 <./SM1.pdf>] <sim1_plot_bias.pdf, id=96, 469.755pt x 433.62pt>
+File: sim1_plot_bias.pdf Graphic file (type pdf)
 
-<use extreme_big_bias.pdf>
-Package pdftex.def Info: extreme_big_bias.pdf used on input line 10.
-(pdftex.def)             Requested size: 361.35463pt x 289.09251pt.
- [23 <./extreme_big_bias.pdf>]
-<extreme_big_rmse.pdf, id=101, 361.35pt x 289.08pt>
-File: extreme_big_rmse.pdf Graphic file (type pdf)
- <use extreme_big_rmse.pdf>
-Package pdftex.def Info: extreme_big_rmse.pdf used on input line 17.
-(pdftex.def)             Requested size: 361.35463pt x 289.09251pt.
+<use sim1_plot_bias.pdf>
+Package pdftex.def Info: sim1_plot_bias.pdf used on input line 10.
+(pdftex.def)             Requested size: 469.75386pt x 433.63878pt.
 
-[24 <./extreme_big_rmse.pdf>] <hackshaw_post.pdf, id=110, 361.35pt x 289.08pt>
+Overfull \hbox (43.36017pt too wide) in paragraph at lines 10--14
+[][] 
+ []
+
+[24 <./sim1_plot_bias.pdf>] <sim1_plot_rmse.pdf, id=105, 469.755pt x 433.62pt>
+File: sim1_plot_rmse.pdf Graphic file (type pdf)
+
+<use sim1_plot_rmse.pdf>
+Package pdftex.def Info: sim1_plot_rmse.pdf used on input line 20.
+(pdftex.def)             Requested size: 469.75386pt x 433.63878pt.
+
+Overfull \hbox (43.36017pt too wide) in paragraph at lines 20--24
+[][] 
+ []
+
+[25 <./sim1_plot_rmse.pdf>]
+<sim1_plot_coverage.pdf, id=115, 469.755pt x 433.62pt>
+File: sim1_plot_coverage.pdf Graphic file (type pdf)
+
+<use sim1_plot_coverage.pdf>
+Package pdftex.def Info: sim1_plot_coverage.pdf used on input line 30.
+(pdftex.def)             Requested size: 469.75386pt x 433.63878pt.
+
+Overfull \hbox (43.36017pt too wide) in paragraph at lines 30--34
+[][] 
+ []
+
+[26 <./sim1_plot_coverage.pdf>]
+<hackshaw_post.pdf, id=124, 469.755pt x 361.35pt>
 File: hackshaw_post.pdf Graphic file (type pdf)
+ <use hackshaw_post.pdf>
+Package pdftex.def Info: hackshaw_post.pdf used on input line 40.
+(pdftex.def)             Requested size: 469.75386pt x 361.35463pt.
 
-<use hackshaw_post.pdf>
-Package pdftex.def Info: hackshaw_post.pdf used on input line 24.
-(pdftex.def)             Requested size: 361.35463pt x 289.09251pt.
- [25 <./hackshaw_post.pdf>]
-<bornmann_post.pdf, id=123, 361.35pt x 289.08pt>
+Overfull \hbox (43.36017pt too wide) in paragraph at lines 40--43
+[][] 
+ []
+
+[27 <./hackshaw_post.pdf>] <bornmann_post.pdf, id=136, 469.755pt x 361.35pt>
 File: bornmann_post.pdf Graphic file (type pdf)
- <use bornmann_post.pdf>
-Package pdftex.def Info: bornmann_post.pdf used on input line 32.
-(pdftex.def)             Requested size: 361.35463pt x 289.09251pt.
 
-[26 <./bornmann_post.pdf>]
-<landenberger_post.pdf, id=135, 361.35pt x 289.08pt>
+<use bornmann_post.pdf>
+Package pdftex.def Info: bornmann_post.pdf used on input line 49.
+(pdftex.def)             Requested size: 469.75386pt x 361.35463pt.
+
+Overfull \hbox (43.36017pt too wide) in paragraph at lines 49--51
+[][] 
+ []
+
+[28 <./bornmann_post.pdf>]
+<landenberger_post.pdf, id=148, 469.755pt x 361.35pt>
 File: landenberger_post.pdf Graphic file (type pdf)
 
 <use landenberger_post.pdf>
-Package pdftex.def Info: landenberger_post.pdf used on input line 40.
-(pdftex.def)             Requested size: 361.35463pt x 289.09251pt.
- [27 <./landenberger_post.pdf>])
-(./StackingPubBias.lot)
+Package pdftex.def Info: landenberger_post.pdf used on input line 57.
+(pdftex.def)             Requested size: 469.75386pt x 361.35463pt.
+
+Overfull \hbox (43.36017pt too wide) in paragraph at lines 57--60
+[][] 
+ []
+
+[29 <./landenberger_post.pdf>]) (./StackingPubBias.lot)
 \tf@lot=\write6
 \openout6 = `StackingPubBias.lot'.
 
- [28
+ [30
 
 
 
@@ -504,47 +538,46 @@ Package pdftex.def Info: landenberger_post.pdf used on input line 40.
 
 
 
-] (./StackingPubBias.ttt [29
 
-] [30
+]
+(./StackingPubBias.ttt [31
 
-] [31
+] [32
 
-])
-(./StackingPubBias.aux)
+] [33
+
+]) (./StackingPubBias.aux)
 
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
  ) 
 Here is how much of TeX's memory you used:
- 5965 strings out of 493014
- 86703 string characters out of 6133351
- 166775 words of memory out of 5000000
- 9367 multiletter control sequences out of 15000+600000
+ 5971 strings out of 493014
+ 86785 string characters out of 6133351
+ 166785 words of memory out of 5000000
+ 9372 multiletter control sequences out of 15000+600000
  16252 words of font info for 63 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,19n,44p,1725b,344s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,19n,44p,1725b,350s stack positions out of 5000i,500n,10000p,200000b,80000s
  </Users/tommy/Library/texlive/2016/texmf-var/fonts/pk/ljfour/public/bbm/bbm1
 2.600pk></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx
 12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmex1
-0.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12
-.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.p
-fb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb
-></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb
-></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb><
-/usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></u
-sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/
-local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loc
-al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/loca
-l/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/
-texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on StackingPubBias.pdf (31 pages, 320474 bytes).
+0.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cmextra/c
+mex8.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmm
+i12.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi
+6.pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.
+pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.
+pfb></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pf
+b></usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb>
+</usr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></u
+sr/local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/
+local/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/l
+ocal/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/loc
+al/texlive/2016/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
+Output written on StackingPubBias.pdf (33 pages, 479080 bytes).
 PDF statistics:
- 207 PDF objects out of 1000 (max. 8388607)
- 146 compressed objects within 2 object streams
+ 223 PDF objects out of 1000 (max. 8388607)
+ 157 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 31 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

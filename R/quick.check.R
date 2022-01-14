@@ -1,7 +1,7 @@
 ### quick tests after simulations
+library(tidyverse)
 
-
-sim.extreme.small.60$models %>%
+sim4.40$models %>%
   group_by(model) %>%
   summarize(m = mean(as.numeric(est.mean)),
             s = sd(as.numeric(est.mean)),

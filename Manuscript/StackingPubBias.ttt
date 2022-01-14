@@ -2,22 +2,22 @@
 \centering
 \begin{tabular}{lrrrrr}
   \hline
-Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
+Model & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\
   \hline
-Stacked & 0.021 & 0.152 & 0.990 & 0.605 & 0.124 \\
-  Two-side (2) & 0.022 & 0.139 & 1.000 & 0.552 & 0.103 \\
-  One-side (4) & 0.024 & 0.140 & 1.000 & 0.554 & 0.104 \\
-  One-side (3) & 0.026 & 0.138 & 1.000 & 0.548 & 0.104 \\
-  Mavridis & 0.031 & 0.197 & 0.990 & 0.784 & 0.147 \\
-  One-side (2) & 0.041 & 0.140 & 0.995 & 0.555 & 0.108 \\
-  Two-side (1) & 0.056 & 0.140 & 0.995 & 0.558 & 0.118 \\
-  One-side (1) & 0.059 & 0.140 & 0.990 & 0.555 & 0.117 \\
-  Bai & 0.077 & 0.172 & 0.975 & 0.686 & 0.148 \\
-  Standard & 0.133 & 0.145 & 0.915 & 0.570 & 0.176 \\
+Standard & 0.219 & 0.052 & 0.122 & 0.327 & -- \\
+  Stacked & 0.108 & 0.074 & -0.044 & 0.253 & -- \\
+  Mavridis & 0.103 & 0.073 & -0.036 & 0.255 & 0.630 \\
+  Bai & 0.167 & 0.081 & -0.016 & 0.309 & 0.000 \\
+  Two-side (1) & 0.190 & 0.052 & 0.093 & 0.297 & 0.000 \\
+  Two-side (2) & 0.186 & 0.049 & 0.093 & 0.286 & 0.000 \\
+  One-side (1) & 0.182 & 0.054 & 0.081 & 0.296 & 0.000 \\
+  One-side (2) & 0.105 & 0.082 & -0.084 & 0.245 & 0.243 \\
+  One-side (3) & 0.183 & 0.053 & 0.085 & 0.294 & 0.000 \\
+  One-side (4) & 0.131 & 0.059 & 0.018 & 0.251 & 0.127 \\
    \hline
 \end{tabular}
-\caption{Simulation results for selection function 1 with 15 base studies and extreme selection}
-\label{table:sim1_extreme_big_15}
+\caption{Posterior summaries for each model from numerical example 1 using data from \citet{hackshaw1997}. The stacked model has a drastically different posterior distribution for $\theta$ than the standard meta-analysis, with a mean closer to 0 and larger tails. Models contributing to the stacked posterior are the Mavridis Copas model and one-sided step models with steps at (.025, .5) and (.025, .1)}
+\label{tab:hackshaw}
 \end{table}
 \efloatseparator
  
@@ -25,45 +25,44 @@ Stacked & 0.021 & 0.152 & 0.990 & 0.605 & 0.124 \\
 \centering
 \begin{tabular}{lrrrrr}
   \hline
-Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
+Model & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\
   \hline
-Stacked          & 0.004 & 0.102 & 0.940 & 0.404 & 0.108 \\
-  Mavridis        & -0.010 & 0.117 & 0.950 & 0.465 & 0.112 \\
-  Two-side (2) & 0.032 & 0.091 & 0.960 & 0.361 & 0.088 \\
-  One-side (4) & 0.034 & 0.091 & 0.950 & 0.359 & 0.090 \\
-  One-side (3) & 0.038 & 0.090 & 0.955 & 0.357 & 0.089 \\
-  One-side (2) & 0.042 & 0.089 & 0.945 & 0.355 & 0.092 \\
-  Bai        & 0.043 & 0.110 & 0.940 & 0.439 & 0.113 \\
-  Two-side (1) & 0.062 & 0.089 & 0.900 & 0.353 & 0.103 \\
-  One-side (1) & 0.066 & 0.088 & 0.900 & 0.351 & 0.105 \\
-  Standard      & 0.113 & 0.086 & 0.760 & 0.333 & 0.139 \\
+Standard & 0.069 & 0.030 & 0.012 & 0.128 & -- \\
+  Stacked & 0.051 & 0.036 & -0.021 & 0.119 & -- \\
+  Mavridis & 0.032 & 0.035 & -0.038 & 0.104 & 0.345 \\
+  Bai & 0.060 & 0.032 & -0.003 & 0.122 & 0.655 \\
+  Two-side (1) & 0.057 & 0.027 & 0.007 & 0.112 & 0.000 \\
+  Two-side (2) & 0.056 & 0.027 & 0.007 & 0.112 & 0.000 \\
+  One-side (1) & 0.054 & 0.031 & -0.007 & 0.115 & 0.000 \\
+  One-side (2) & 0.012 & 0.042 & -0.075 & 0.090 & 0.000 \\
+  One-side (3) & 0.050 & 0.031 & -0.010 & 0.111 & 0.000 \\
+  One-side (4) & 0.041 & 0.032 & -0.023 & 0.104 & 0.000 \\
    \hline
 \end{tabular}
-\caption{Simulation results for selection function 1 with 30 base studies and extreme selection}
-\label{table:sim1_extreme_big_30}
+\caption{Posterior summaries for each model from numerical example 2 using data from \citet{bornmann2007gender}. While the standard analysis yields a 95\% posterior credible interval (CI) excluding zero, the stacked posterior shifts the mean towards zero and the posterior CI includes zero. Models contributing to the stack are the Bai and Mavridis Copas models.}
+\label{tab:bornmann}
 \end{table}
 \efloatseparator
  
 \begin{table}[ht]
-\centering
 \begin{tabular}{lrrrrr}
   \hline
-Model & Bias & Avg. SD & 95\% Cover & 95\% Length & RMSE \\
+Model & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\
   \hline
-Stacked & 0.003 & 0.076 & 0.945 & 0.301 & 0.078 \\
-  Mavridis & -0.025 & 0.080 & 0.930 & 0.317 & 0.084 \\
-  Bai & 0.032 & 0.081 & 0.925 & 0.319 & 0.081 \\
-  Two-side (2) & 0.050 & 0.064 & 0.915 & 0.254 & 0.074 \\
-  One-side (4) & 0.051 & 0.064 & 0.925 & 0.253 & 0.074 \\
-  One-side (2) & 0.052 & 0.063 & 0.930 & 0.248 & 0.076 \\
-  One-side (3) & 0.058 & 0.063 & 0.890 & 0.248 & 0.080 \\
-  Two-side (1) & 0.076 & 0.062 & 0.795 & 0.243 & 0.094 \\
-  One-side (1) & 0.080 & 0.061 & 0.800 & 0.241 & 0.097 \\
-  Standard & 0.113 & 0.058 & 0.465 & 0.224 & 0.126 \\
+Standard & 0.425 & 0.063 & 0.303 & 0.552 & -- \\
+  Stacked & 0.282 & 0.112 & 0.030 & 0.469 & --  \\
+  Mavridis & 0.236 & 0.089 & 0.058 & 0.408 & 0.142 \\
+  Bai & 0.326 & 0.090 & 0.124 & 0.485 & 0.548 \\
+  Two-side (1) & 0.402 & 0.063 & 0.283 & 0.525 & 0.000 \\
+  Two-side (2) & 0.385 & 0.064 & 0.264 & 0.515 & 0.000 \\
+  One-side (1) & 0.393 & 0.067 & 0.261 & 0.528 & 0.000 \\
+  One-side (2) & 0.227 & 0.123 & -0.055 & 0.431 & 0.311 \\
+  One-side (3) & 0.369 & 0.069 & 0.231 & 0.507 & 0.000 \\
+  One-side (4) & 0.369 & 0.071 & 0.225 & 0.507 & 0.000 \\
    \hline
 \end{tabular}
-\caption{Simulation results for selection function 1 with 60 base studies and extreme selection}
-\label{table:sim1_extreme_big_60}
+\caption{Posterior summaries for each model from numerical example 3 using data from \citet{landenberger2005recidivism}. The stacked model heavily shifts the posterior distribution of $\theta$ towards zero. Models contributing to the stack are the Mavridis and Bai Copas models, and the one-sided step selection model with steps at (.025, .5).}
+\label{tab:landenberger}
 \end{table}
 \efloatseparator
  

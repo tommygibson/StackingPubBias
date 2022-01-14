@@ -294,12 +294,12 @@ plot.coverage <- summary.all %>%
 
 
 # 
-# ggsave(here("Manuscript", "plot.rmse.pdf"), plot = plot.rmse, 
-#        width = 6, height = 5, units = "in")
-# ggsave(here("Manuscript", "plot.bias.pdf"), plot = plot.bias, 
-#        width = 6, height = 5, units = "in")
-# ggsave(here("Manuscript", "plot.coverage.pdf"), plot = plot.coverage, 
-#        width = 6, height = 5, units = "in")
+ggsave(here("Manuscript", "sim1_plot_rmse.pdf"), plot = plot.rmse,
+       width = 6.5, height = 6, units = "in")
+ggsave(here("Manuscript", "sim1_plot_bias.pdf"), plot = plot.bias,
+       width = 6.5, height = 6, units = "in")
+ggsave(here("Manuscript", "sim1_plot_coverage.pdf"), plot = plot.coverage,
+       width = 6.5, height = 6, units = "in")
 
 ### Generate latex tables
 print(xtable(sim.1.summary[,-7], digits = 3), include.rownames = FALSE)
