@@ -282,40 +282,101 @@ We simulated $K=200$ iterations for each of 16 scenarios. Figure \ref{fig:sim1_p
 
 RMSE for each scenario is shown in Figure \ref{fig:sim1_plot_rmse}. Stacking performs particularly well with extreme selection as sample sizes increase. The stacked posterior distribution of $\theta$ often has higher variance than most individual models, so even as it shows small biases it can be outperformed in terms of RMSE. However, models that have lower RMSE than stacking tend to have 95\% coverage probabilities drop considerably as sample sizes increase, as shown in Figure \ref{fig:sim1_plot_coverage}. Stacking maintains coverage near the 95\% nominal level in all scenarios except a) extreme selection with small true mean $\theta$, and b) moderate selection with small $\theta$ \textit{and} average sample size of 80. In (a), no model shows coverage probabilities near the nominal level, although stacking is among the closest for each sample size. For (b), all models except one-sided selection with steps at $p = 0.025, 0.5$ have coverage probabilities drop below 0.9. Overall, stacking tends to have low bias and 95\% coverage probabilities closest to the nominal level.
 
-\section{Numerical examples} \label{sec:numex}
+\section{Data analyses} \label{sec:numex}
 
-We illustrate Bayesian stacking of selection models for publication bias to multiple datasets previously analyzed in the meta-analysis literature. 
+We illustrate Bayesian stacking of selection models for publication bias on three datasets previously analyzed in the meta-analysis literature. In each example we fit the default $K=8$ selection models and stack them to obtain the stacked posterior distribution, which we compare with results from the standard meta-analysis model. 
 
 \subsection{Second-hand smoke and lung cancer}
 
-The first dataset is a set of 37 studies estimating the effects of second-hand smoke on the likelihood of developing lung cancer originally analyzed by \citet{hackshaw1997}, who performed a random-effects analysis and found a mean log-odds ratio of 0.217 (95\% CI 0.12 - 0.31). 
+\citet{hackshaw1997} analyzed a set of 37 studies measuring the effects of second-hand smoke on the likelihood of developing lung cancer. Individual studies measured the relative risk of lung cancer for women living with spouses who smoked vs women living with spouses who do not smoke. The authors performed a standard random-effects meta-analysis, finding a pooled relative risk (RR) of 1.24 (95\% CI 1.13-1.36). The dataset from \citet{hackshaw1997} has been used to illustrate publication bias models in the past \citep{sterne2005funnel, ning2017copas, takagi2006hackshaw}.
+
+We use log-relative risk as the main endpoint $\theta$. Summaries for $\theta$ under each model are shown in Table \ref{tab:hackshaw}, along with the standard model and stacked model. Three models contributed to the stacked posterior distribution: the Mavridis Copas model (weight = 0.63), one-sided stepped selection model with steps at $p=0.025, 0.5$ (weight = .243), and the one-sided stepped selection model with steps at $p=0.025, 0.1$ (weight = .127). Figure \ref{fig:hackshaw} shows posterior distributions for $\theta$ for each model. The stacked mean of $\theta$ is 0.108, with a 95\% posterior interval of (-0.036, 0.255), which transforms to a mean relative risk of 1.11 (0.96, 1.29). Compared to the original results from \citet{hackshaw1997}, the stacked model estimates a mean increased risk of 11\% rather than the 24\% originally reported, with a much wider range of plausible values including the null value of 1. 
+
 
 \subsection{Gender effects in grant proposals}
 
-Next we analyze a set of 66 studies from \citet{bornmann2007gender} comparing the odds of a successful grant proposal for grants written by men or women. 
+\citet{bornmann2007gender} compared the odds of a successful grant proposal for grants written by men compared to women using a dataset of 66 peer review procedures from 21 studies. Each study generally reported on one type of award and multiple peer review procedures for that award (e.g. TMR Marie Curie Fellowship for chemistry, engineering, mathematics, earth sciences, economics, physics and life sciences). \citet{bornmann2007gender} fit a random effects meta-analysis with the log-odds ratio (logOR) as the main endpoint $\theta$. The empirical Bayes estimate for the logOR of grant acceptance for men compared to women was 0.07 (95\% CI 0.01-0.13), indicating a significant effect in favor of men. A funnel plot of study-specific effect sizes against their standard errors shows potential evidence of publication bias, so we fit the stacking procedure to the set of 66 results. 
+
+Table \ref{tab:bornmann} shows model-specific point estimates and 95\% intervals. The two models yielding the highest stacking weights were the Mavridis Copas model (weight = .345) and the Bai Copas model (weight = .655). Figure \ref{fig:bornmann} shows posterior distributions of $\theta$ for the standard model, stacked model, and the two models contributing to the stacked model. The stacked posterior mean logOR was 0.051 with a 95\% posterior interval of (-0.021, 0.119), still indicating a trend of grant proposals favoring men, but the 95\% interval includes the null value of 0. 
 
 \subsection{Recidivism and cognitive behavioral therapy} 
 
-The third numerical example uses a set of 58 studies from \citet{landenberger2005recidivism} measuring how cognitive behavioral therapy (CBT) interventions are associated with recidivism in both adult and juvenile offenders, with the main outcome measure as the log-odds ratio.
+\citet{landenberger2005recidivism} analyzed a collection of 58 studies measuring how cognitive behavioral therapy (CBT) interventions are associated with recidivism in both adult and juvenile offenders. The authors fit a random effects meta-analysis model and report a mean odds ratio of 1.53 (logOR = 0.425) with $p < 0.001$. A funnel plot of the 58 studies shows heavy asymmetry with skew towards positive results (favoring the CBT intervention). 
 
-$< $ for now look at Tables \ref{tab:hackshaw} - \ref{tab:landenberger} and Figures \ref{fig:hackshaw} - \ref{fig:landenberger}$>$
+Table \ref{tab:landenberger} shows posterior summaries for the mean logOR for each model. The three models contributing to the stacked posterior were Mavridis Copas (weight = 0.142), Bai Copas (weight = 0.548), and one-sided selection with steps at $p = 0.025, 0.5$ (weight = 0.311). The stacked posterior mean logOR was 0.282 (95\% CI 0.030, 0.469). Figure \ref{fig:landenberger} shows posterior distributions for the standard model, stacked model, and the 3 models contributing to the stacked posterior. The stacked posterior logOR is shifted towards zero and is much more diffuse than the standard model. 
+
+\section{Discussion}
+
+
 
 
 %%%%%% Tables!
 
 %%% for numerical examples
-\begin{table}[ht]\centering\begin{tabular}{lrrrrr}  \hlineModel & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\   \hlineStandard & 0.219 & 0.052 & 0.122 & 0.327 & -- \\   Stacked & 0.108 & 0.074 & -0.044 & 0.253 & -- \\   Mavridis & 0.103 & 0.073 & -0.036 & 0.255 & 0.630 \\   Bai & 0.167 & 0.081 & -0.016 & 0.309 & 0.000 \\   Two-side (1) & 0.190 & 0.052 & 0.093 & 0.297 & 0.000 \\   Two-side (2) & 0.186 & 0.049 & 0.093 & 0.286 & 0.000 \\   One-side (1) & 0.182 & 0.054 & 0.081 & 0.296 & 0.000 \\   One-side (2) & 0.105 & 0.082 & -0.084 & 0.245 & 0.243 \\   One-side (3) & 0.183 & 0.053 & 0.085 & 0.294 & 0.000 \\   One-side (4) & 0.131 & 0.059 & 0.018 & 0.251 & 0.127 \\    \hline\end{tabular}
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\ 
+  \hline
+Standard & 0.219 & 0.052 & 0.122 & 0.327 & -- \\ 
+  Stacked & 0.108 & 0.074 & -0.044 & 0.253 & -- \\ 
+  Mavridis & 0.103 & 0.073 & -0.036 & 0.255 & 0.630 \\ 
+  Bai & 0.167 & 0.081 & -0.016 & 0.309 & 0.000 \\ 
+  Two-side (1) & 0.190 & 0.052 & 0.093 & 0.297 & 0.000 \\ 
+  Two-side (2) & 0.186 & 0.049 & 0.093 & 0.286 & 0.000 \\ 
+  One-side (1) & 0.182 & 0.054 & 0.081 & 0.296 & 0.000 \\ 
+  One-side (2) & 0.105 & 0.082 & -0.084 & 0.245 & 0.243 \\ 
+  One-side (3) & 0.183 & 0.053 & 0.085 & 0.294 & 0.000 \\ 
+  One-side (4) & 0.131 & 0.059 & 0.018 & 0.251 & 0.127 \\ 
+   \hline
+\end{tabular}
 \caption{Posterior summaries for each model from numerical example 1 using data from \citet{hackshaw1997}. The stacked model has a drastically different posterior distribution for $\theta$ than the standard meta-analysis, with a mean closer to 0 and larger tails. Models contributing to the stacked posterior are the Mavridis Copas model and one-sided step models with steps at (.025, .5) and (.025, .1)}
-\label{tab:hackshaw}\end{table}
-
-\begin{table}[ht]\centering\begin{tabular}{lrrrrr}  \hlineModel & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\   \hlineStandard & 0.069 & 0.030 & 0.012 & 0.128 & -- \\   Stacked & 0.051 & 0.036 & -0.021 & 0.119 & -- \\   Mavridis & 0.032 & 0.035 & -0.038 & 0.104 & 0.345 \\   Bai & 0.060 & 0.032 & -0.003 & 0.122 & 0.655 \\   Two-side (1) & 0.057 & 0.027 & 0.007 & 0.112 & 0.000 \\   Two-side (2) & 0.056 & 0.027 & 0.007 & 0.112 & 0.000 \\   One-side (1) & 0.054 & 0.031 & -0.007 & 0.115 & 0.000 \\   One-side (2) & 0.012 & 0.042 & -0.075 & 0.090 & 0.000 \\   One-side (3) & 0.050 & 0.031 & -0.010 & 0.111 & 0.000 \\   One-side (4) & 0.041 & 0.032 & -0.023 & 0.104 & 0.000 \\    \hline\end{tabular}
-\caption{Posterior summaries for each model from numerical example 2 using data from \citet{bornmann2007gender}. While the standard analysis yields a 95\% posterior credible interval (CI) excluding zero, the stacked posterior shifts the mean towards zero and the posterior CI includes zero. Models contributing to the stack are the Bai and Mavridis Copas models.}
-\label{tab:bornmann}\end{table}
+\label{tab:hackshaw}
+\end{table}
 
 \begin{table}[ht]
-\begin{tabular}{lrrrrr}  \hlineModel & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\   \hlineStandard & 0.425 & 0.063 & 0.303 & 0.552 & -- \\   Stacked & 0.282 & 0.112 & 0.030 & 0.469 & --  \\   Mavridis & 0.236 & 0.089 & 0.058 & 0.408 & 0.142 \\   Bai & 0.326 & 0.090 & 0.124 & 0.485 & 0.548 \\   Two-side (1) & 0.402 & 0.063 & 0.283 & 0.525 & 0.000 \\   Two-side (2) & 0.385 & 0.064 & 0.264 & 0.515 & 0.000 \\   One-side (1) & 0.393 & 0.067 & 0.261 & 0.528 & 0.000 \\   One-side (2) & 0.227 & 0.123 & -0.055 & 0.431 & 0.311 \\   One-side (3) & 0.369 & 0.069 & 0.231 & 0.507 & 0.000 \\   One-side (4) & 0.369 & 0.071 & 0.225 & 0.507 & 0.000 \\    \hline\end{tabular}
+\centering
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\ 
+  \hline
+Standard & 0.069 & 0.030 & 0.012 & 0.128 & -- \\ 
+  Stacked & 0.051 & 0.036 & -0.021 & 0.119 & -- \\ 
+  Mavridis & 0.032 & 0.035 & -0.038 & 0.104 & 0.345 \\ 
+  Bai  	& 0.060 & 0.032 & -0.003 & 0.122 & 0.655 \\ 
+  Two-side (1) & 0.057 & 0.027 & 0.007 & 0.112 & 0.000 \\ 
+  Two-side (2) & 0.056 & 0.027 & 0.007 & 0.112 & 0.000 \\ 
+  One-side (1) & 0.054 & 0.031 & -0.007 & 0.115 & 0.000 \\ 
+  One-side (2) & 0.012 & 0.042 & -0.075 & 0.090 & 0.000 \\ 
+  One-side (3) & 0.050 & 0.031 & -0.010 & 0.111 & 0.000 \\ 
+  One-side (4) & 0.041 & 0.032 & -0.023 & 0.104 & 0.000 \\ 
+   \hline
+\end{tabular}
+\caption{Posterior summaries for each model from numerical example 2 using data from \citet{bornmann2007gender}. While the standard analysis yields a 95\% posterior credible interval (CI) excluding zero, the stacked posterior shifts the mean towards zero and the posterior CI includes zero. Models contributing to the stack are the Bai and Mavridis Copas models.}
+\label{tab:bornmann}
+\end{table}
+
+\begin{table}[ht]
+\begin{tabular}{lrrrrr}
+  \hline
+Model & Mean & SD & 2.5\% & 97.5\% & Stacking Weight \\ 
+  \hline
+Standard & 0.425 & 0.063 & 0.303 & 0.552 & -- \\ 
+  Stacked & 0.282 & 0.112 & 0.030 & 0.469 & --  \\ 
+  Mavridis & 0.236 & 0.089 & 0.058 & 0.408 & 0.142 \\ 
+  Bai & 0.326 & 0.090 & 0.124 & 0.485 & 0.548 \\ 
+  Two-side (1) & 0.402 & 0.063 & 0.283 & 0.525 & 0.000 \\ 
+  Two-side (2) & 0.385 & 0.064 & 0.264 & 0.515 & 0.000 \\ 
+  One-side (1) & 0.393 & 0.067 & 0.261 & 0.528 & 0.000 \\ 
+  One-side (2) & 0.227 & 0.123 & -0.055 & 0.431 & 0.311 \\ 
+  One-side (3) & 0.369 & 0.069 & 0.231 & 0.507 & 0.000 \\ 
+  One-side (4) & 0.369 & 0.071 & 0.225 & 0.507 & 0.000 \\ 
+   \hline
+\end{tabular}
 \caption{Posterior summaries for each model from numerical example 3 using data from \citet{landenberger2005recidivism}. The stacked model heavily shifts the posterior distribution of $\theta$ towards zero. Models contributing to the stack are the Mavridis and Bai Copas models, and the one-sided step selection model with steps at (.025, .5).}
-\label{tab:landenberger}\end{table}
+\label{tab:landenberger}
+\end{table}
 
 
 

@@ -12,6 +12,7 @@ library(RColorBrewer)
 
 source(here("R", "stacking.functions.R"))
 
+### Avoiding recompiling stan models
 t <- stan_model(here("R", "Models", "step.twoside.stan"))
 o <- stan_model(here("R", "Models", "step.oneside.stan"))
 
@@ -21,6 +22,7 @@ o.loo <- stan_model(here("R", "Models", "step.oneside.loo.stan"))
 
 stack_analysis <- function(y, s){
   
+  ### Specify data for each model
   S <- S.full <- length(y)
   y.full <- y
   s.full <- s
@@ -66,7 +68,7 @@ stack_analysis <- function(y, s){
                         steps = c(.1, .025),
                         M = 2)
   
-  # Inits for copas models run in jags
+  # Inits for copas models
   
   init.gen.std <- function(){
     list(
@@ -96,8 +98,11 @@ stack_analysis <- function(y, s){
     )
   }
   
+  # parameters to follow for copas models
   params <- c("loglik", "theta0")
   
+  
+  ## Fit all models
   std <- do.call(jags.parallel,
                  list(data = names(bai.dat), inits = init.gen.std, 
                       parameters.to.save = c("theta0"), model.file = here("R", "Models", "std.meta.txt"),
@@ -118,7 +123,7 @@ stack_analysis <- function(y, s){
   oneside.3 <- sampling(o, data = oneside.dat.3, iter = 4000, chains = 4, cores = 4)
   oneside.4 <- sampling(o, data = oneside.dat.4, iter = 4000, chains = 4, cores = 4)
   
-  
+  # extract log-likelihoods into a list
   loglik <- list()
   loglik[[1]] <- mav$BUGSoutput$sims.list$loglik
   loglik[[2]] <- bai$BUGSoutput$sims.list$loglik
@@ -129,7 +134,7 @@ stack_analysis <- function(y, s){
   loglik[[7]] <- extract_log_lik(oneside.3, parameter_name = "loglik")
   loglik[[8]] <- extract_log_lik(oneside.4, parameter_name = "loglik")
   
-  
+  ### calculate relative effective sample sizes and loo objects (elpd) for stacking
   r_eff <- lapply(loglik, function(x){
     relative_eff(exp(x), chain_id = rep(1:4, each = 2000)) # 4 chains, each with 1000 draws
   })
@@ -138,9 +143,12 @@ stack_analysis <- function(y, s){
     loo::loo(loglik[[j]], r_eff = r_eff[[j]])
   })
   
+  # indices for observations with unreliable psis estimates (k diagnostic > 0.5)
+  # for each model
   big_k_indices <- lapply(loo_list, function(x){
     which(x$diagnostics$pareto_k > 0.5)
   })
+
   num_big_k <- sapply(big_k_indices, length)
   
   ### if there aren't any big pareto k's then we can just stack!
@@ -148,14 +156,17 @@ stack_analysis <- function(y, s){
     weights <- loo_model_weights(loo_list, method = 'stacking', r_eff_list = r_eff)
   }
   
+  # if not...
   else{
+    # matrix of loo log-predictive densities for each observation x model
     lpds <- do.call(cbind, (lapply(1:length(loo_list), function(j){
       unlist(loo_list[[j]]$pointwise[,1])
     })))
+    # loop for those models with problematic observations
     for(m in which(num_big_k != 0)){
       lpds[,m] <- unlist(loo_list[[m]]$pointwise[,1])
 
-      ### set up data for leave-one-out
+      ### set up data for leave-one-out analyses
       S <- S.full - 1
       H <- 1
       
@@ -166,7 +177,7 @@ stack_analysis <- function(y, s){
         s <- s.full[-big_k_indices[[m]][i]]
         
         ## different data structure, inits, etc for each model (ugh)
-        if(m == 1){
+        if(m == 1){ # model 1: Mavridis copas
           dat.loo <- list(S = S, H = H,
                           y = y, y_h = y_h,
                           s = s, s_h = s_h,
